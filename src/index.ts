@@ -10,13 +10,17 @@
  *   GET /api/files/<id>        raw versions stored for one source (?cursor= to page)
  *   GET /files/<key>           a raw CRL (lcr/...) or a run log (log/...)
  *   GET /sources               the configured sources
+ *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
  */
 import sourcesJson from "../sources.json";
 import { ID_RE, runCollection, validateSources } from "./collector.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
+import { gateRun } from "./run.js";
 
 export interface Env {
   LCR: R2Bucket;
+  /** Secret. When set, POST /api/run with "Authorization: Bearer <RUN_TOKEN>" runs a collection now. */
+  RUN_TOKEN?: string;
 }
 
 const sources = validateSources(sourcesJson);
@@ -27,6 +31,14 @@ const OPTIONS = {
   concurrency: 6,
   userAgent: "kya-icp-collector/0.2 (+https://github.com/celfons/kya-icp)"
 };
+
+/** One collection run; returns where its log went and the outcome counts. */
+async function collect(env: Env) {
+  const { logKey, attempts } = await runCollection({ ...OPTIONS, sources, bucket: env.LCR, fetch: (input, init) => fetch(input, init), now: () => new Date() });
+  const outcomes: Record<string, number> = {};
+  for (const a of attempts) outcomes[a.outcome] = (outcomes[a.outcome] ?? 0) + 1;
+  return { logKey, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
+}
 
 const COMMON = { "access-control-allow-origin": "*", "x-content-type-options": "nosniff" };
 const json = (body: unknown, status = 200, maxAge = 60) =>
@@ -60,17 +72,21 @@ async function serveObject(env: Env, key: string, contentType: string): Promise<
 
 export default {
   async scheduled(_event: ScheduledController, env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(
-      runCollection({ ...OPTIONS, sources, bucket: env.LCR, fetch: (input, init) => fetch(input, init), now: () => new Date() }).then(({ logKey, attempts }) => {
-        const count = (o: string) => attempts.filter((a) => a.outcome === o).length;
-        console.log(JSON.stringify({ logKey, stored: count("stored"), unchanged: count("unchanged"), failed: attempts.length - count("stored") - count("unchanged") }));
-      })
-    );
+    ctx.waitUntil(collect(env).then((r) => console.log(JSON.stringify(r))));
   },
 
   async fetch(req: Request, env: Env): Promise<Response> {
-    if (req.method !== "GET" && req.method !== "HEAD") return json({ error: "method not allowed" }, 405, 0);
     const { pathname, searchParams } = new URL(req.url);
+    if (pathname === "/api/run") {
+      const gate = await gateRun(req, env.RUN_TOKEN, env.LCR, new Date());
+      if (!gate.ok) {
+        const r = json({ error: gate.error }, gate.status, 0);
+        if (gate.retry_after_s) r.headers.set("retry-after", String(gate.retry_after_s));
+        return r;
+      }
+      return json(await collect(env), 200, 0);
+    }
+    if (req.method !== "GET" && req.method !== "HEAD") return json({ error: "method not allowed" }, 405, 0);
     if (pathname === "/") {
       return new Response(DASHBOARD_HTML, { headers: { ...COMMON, "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=300", "content-security-policy": "default-src 'none'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'" } });
     }
