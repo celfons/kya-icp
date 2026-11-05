@@ -58,14 +58,19 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 
 ## Implantação
 
-1. Neste repositório, em *Settings → Secrets and variables → Actions*, crie:
-   - `CLOUDFLARE_ACCOUNT_ID`: o ID da conta Cloudflare;
-   - `CLOUDFLARE_API_TOKEN`: um token com *Workers Scripts: Edit* e *Workers R2 Storage: Edit*.
-2. Um push na `main` (ou *Actions → Deploy → Run workflow*) cria o bucket `kya-icp-lcr`, se faltar, e publica o
-   Worker `kya-icp-collector`. A primeira coleta acontece no minuto 23 seguinte.
+Pela integração Git da Cloudflare (Workers Builds), sem GitHub Actions: cada push na `main` publica o Worker.
 
-Local: `pnpm install`, `pnpm test`, `pnpm dev` (painel em `http://localhost:8787/`) (com `--test-scheduled`, `curl "http://localhost:8787/cdn-cgi/handler/scheduled"`
-dispara uma coleta). Teste contra as fontes reais: `LIVE=1 pnpm vitest run test/live.test.ts`.
+1. Crie o bucket R2 **`kya-icp-lcr`** (o nome ligado ao Worker em `wrangler.jsonc`).
+2. Em *Workers & Pages → Create → Import a repository*, conecte `celfons/kya-icp` com o nome de Worker
+   **`kya-icp-collector`** (o `name` de `wrangler.jsonc`), diretório raiz `/` e comando de deploy `npx wrangler deploy`.
+   O cron horário e o vínculo com o R2 vêm de `wrangler.jsonc`.
+3. Os agregados das LCR grandes pedem o plano Workers Paid (veja acima). A primeira coleta acontece no minuto 23
+   seguinte ao deploy.
+
+O GitHub Actions roda só o CI (`.github/workflows/ci.yml`): typecheck, testes e o build do Worker.
+
+Local: `pnpm install`, `pnpm test`, `pnpm dev` (painel em `http://localhost:8787/`; com `--test-scheduled`,
+`curl "http://localhost:8787/cdn-cgi/handler/scheduled"` dispara uma coleta). Teste contra as fontes reais: `LIVE=1 pnpm vitest run test/live.test.ts`.
 
 ## Análise
 
