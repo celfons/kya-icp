@@ -14,6 +14,7 @@ describe.skipIf(!process.env.LIVE)("live sources", () => {
     const stored = new Map<string, Uint8Array>();
     const bucket: Bucket = {
       get: async () => null,
+      list: async () => ({ objects: [], truncated: false }),
       put: async (k, v) => void stored.set(k, typeof v === "string" ? new TextEncoder().encode(v) : new Uint8Array(v as ArrayBuffer))
     };
     const { attempts } = await runCollection({ sources: validateSources(sources), bucket, fetch, now: () => new Date(), timeoutMs: 60_000, maxBytes: 64 * 1024 * 1024, concurrency: 6, userAgent: "kya-icp-collector/0.1 (+https://github.com/celfons/kya-icp)" });

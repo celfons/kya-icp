@@ -8,6 +8,7 @@
  *
  * The CRL entries are never decoded here (see der.ts): the analysis runs offline from the raw files.
  */
+import { updateAggregate, writeIndex } from "./aggregate.js";
 import { type CrlHeader, DerError, parseCrlHeader } from "./der.js";
 
 export interface Source {
@@ -23,6 +24,7 @@ export interface Source {
 /** The subset of the R2 binding used here, so tests can pass an in-memory bucket. */
 export interface Bucket {
   get(key: string): Promise<{ text(): Promise<string> } | null>;
+  list(options: { prefix: string; cursor?: string; limit?: number }): Promise<{ objects: { key: string; size: number; uploaded: Date }[]; truncated: boolean; cursor?: string }>;
   put(key: string, value: ArrayBuffer | Uint8Array | string, options?: { httpMetadata?: { contentType?: string }; customMetadata?: Record<string, string> }): Promise<unknown>;
 }
 
@@ -41,6 +43,8 @@ export interface Attempt {
   entries: number | null;
   key: string | null;
   error: string | null;
+  /** Whether the stored version was folded into agg/<source>.json (null when nothing was stored). */
+  aggregated: boolean | null;
 }
 
 export interface RunOptions {
@@ -88,7 +92,7 @@ export function validateSources(input: unknown): Source[] {
 /** Downloads one source and stores it when it changed. Never throws: every problem becomes an Attempt. */
 export async function collectOne(src: Source, o: RunOptions): Promise<Attempt> {
   const started = o.now();
-  const base: Attempt = { source: src.id, url: src.url, fetched_at: started.toISOString(), outcome: "network_error", http_status: null, bytes: null, ms: 0, sha256: null, this_update: null, next_update: null, crl_number: null, entries: null, key: null, error: null };
+  const base: Attempt = { source: src.id, url: src.url, fetched_at: started.toISOString(), outcome: "network_error", http_status: null, bytes: null, ms: 0, sha256: null, this_update: null, next_update: null, crl_number: null, entries: null, key: null, error: null, aggregated: null };
   const done = (a: Partial<Attempt>): Attempt => ({ ...base, ...a, ms: o.now().getTime() - started.getTime() });
   let body: Uint8Array;
   try {
@@ -132,7 +136,13 @@ export async function collectOne(src: Source, o: RunOptions): Promise<Attempt> {
   });
   const state: State = { sha256, this_update: h.thisUpdate, key, stored_at: o.now().toISOString() };
   await o.bucket.put(stateKey, JSON.stringify(state), { httpMetadata: { contentType: "application/json" } });
-  return done({ outcome: "stored", ...meta, key });
+  // The raw file is the data; an aggregate failure is logged and never loses it.
+  try {
+    const agg = await updateAggregate(o.bucket, src, body, h, o.now());
+    return done({ outcome: "stored", ...meta, key, aggregated: agg !== null });
+  } catch (e) {
+    return done({ outcome: "stored", ...meta, key, aggregated: false, error: `aggregate: ${(e as Error)?.message ?? String(e)}` });
+  }
 }
 
 /** Runs every source with bounded concurrency, writes the run log and returns the attempts. */
@@ -145,6 +155,7 @@ export async function runCollection(o: RunOptions): Promise<{ logKey: string; at
   };
   await Promise.all(Array.from({ length: Math.max(1, Math.min(o.concurrency, queue.length)) }, worker));
   attempts.sort((a, b) => a.source.localeCompare(b.source));
+  if (attempts.some((a) => a.aggregated)) await writeIndex(o.bucket, o.sources, o.now());
   const iso = runAt.toISOString();
   const logKey = `log/${iso.slice(0, 4)}/${iso.slice(5, 7)}/${iso.slice(8, 10)}/${compact(iso).slice(9)}.ndjson`;
   await o.bucket.put(logKey, attempts.map((a) => JSON.stringify(a)).join("\n") + "\n", { httpMetadata: { contentType: "application/x-ndjson" } });

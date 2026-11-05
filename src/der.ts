@@ -123,3 +123,51 @@ export function parseCrlHeader(b: Uint8Array): CrlHeader {
   }
   return { issuerDerHex: hex(b.subarray(issuer.pos, issuer.end)), thisUpdate: readTime(b, thisT), nextUpdate, crlNumber, entries };
 }
+
+/** The revokedCertificates SEQUENCE of a CRL, or null when the CRL lists nothing. */
+function revokedList(b: Uint8Array): Tlv | null {
+  const outer = readTlv(b, 0);
+  const [tbs] = children(b, outer);
+  if (!tbs) throw new DerError("missing TBSCertList");
+  const f = children(b, tbs);
+  let i = f[0]?.tag === 0x02 ? 1 : 0;
+  i += 2; // signature algorithm, issuer
+  i++; // thisUpdate
+  if (f[i] && isTime(f[i]!)) i++; // nextUpdate
+  return f[i]?.tag === 0x30 ? f[i]! : null;
+}
+
+export interface CrlEntry {
+  /** Serial number, lowercase hex as encoded (leading zero bytes kept). */
+  serialHex: string;
+  revocationDate: string;
+  /** Whether the entry carries a reasonCode extension (2.5.29.21). */
+  hasReason: boolean;
+}
+
+/** 2.5.29.21 reasonCode, as the DER of its OBJECT IDENTIFIER. */
+const OID_REASON_TLV = Uint8Array.of(0x06, 0x03, 0x55, 0x1d, 0x15);
+
+function contains(b: Uint8Array, from: number, to: number, needle: Uint8Array): boolean {
+  outer: for (let p = from; p + needle.length <= to; p++) {
+    for (let k = 0; k < needle.length; k++) if (b[p + k] !== needle[k]) continue outer;
+    return true;
+  }
+  return false;
+}
+
+/** Calls `fn` for every revoked entry of a DER CRL (call parseCrlHeader first to validate it). */
+export function forEachEntry(b: Uint8Array, fn: (e: CrlEntry) => void): void {
+  const list = revokedList(b);
+  if (!list) return;
+  for (let p = list.start; p < list.end; ) {
+    const entry = readTlv(b, p, list.end);
+    p = entry.end;
+    const serial = readTlv(b, entry.start, entry.end);
+    if (serial.tag !== 0x02) throw new DerError(`entry at ${entry.pos} has no serial number`);
+    const date = readTlv(b, serial.end, entry.end);
+    if (!isTime(date)) throw new DerError(`entry at ${entry.pos} has no revocation date`);
+    fn({ serialHex: hex(b.subarray(serial.start, serial.end)), revocationDate: readTime(b, date), hasReason: date.end < entry.end && contains(b, date.end, entry.end, OID_REASON_TLV) });
+  }
+}
+

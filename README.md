@@ -32,7 +32,29 @@ o total de entradas. O Worker **não decodifica as entradas**: só lê o cabeça
 milissegundos mesmo na maior lista (SERPRO, 2,3 MB e 77 mil entradas: 3,7 ms). Toda a análise é offline, a partir dos
 arquivos brutos, que são a evidência auditável.
 
-`GET /` mostra o resumo da última execução; `GET /sources` lista as fontes.
+A cada versão nova, o Worker também atualiza agregados pequenos (`src/aggregate.ts`), para o painel não processar
+LCR a cada visita:
+
+```
+seen/<fonte>.txt    números de série da última versão agregada
+agg/<fonte>.json    revogações por mês (da LCR mais recente) e o atraso de publicação de cada revogação nova
+agg/index.json      resumo de todas as fontes
+```
+
+Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do limite do plano gratuito dos Workers:
+**o Worker precisa do plano pago (Workers Paid)**. A gravação da LCR bruta acontece antes e não depende do agregado.
+
+### Painel e API (somente leitura; os dados são públicos)
+
+| Rota | Conteúdo |
+| --- | --- |
+| `GET /` | painel: revogações por mês, atraso de publicação, fontes e arquivos brutos |
+| `GET /api/status` | última execução e resultados |
+| `GET /api/summary` | `agg/index.json` |
+| `GET /api/source/<fonte>` | `agg/<fonte>.json` |
+| `GET /api/files/<fonte>` | versões brutas guardadas (`?cursor=` para paginar) |
+| `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
+| `GET /sources` | as fontes configuradas |
 
 ## Implantação
 
@@ -42,7 +64,7 @@ arquivos brutos, que são a evidência auditável.
 2. Um push na `main` (ou *Actions → Deploy → Run workflow*) cria o bucket `kya-icp-lcr`, se faltar, e publica o
    Worker `kya-icp-collector`. A primeira coleta acontece no minuto 23 seguinte.
 
-Local: `pnpm install`, `pnpm test`, `pnpm dev` (com `--test-scheduled`, `curl "http://localhost:8787/cdn-cgi/handler/scheduled"`
+Local: `pnpm install`, `pnpm test`, `pnpm dev` (painel em `http://localhost:8787/`) (com `--test-scheduled`, `curl "http://localhost:8787/cdn-cgi/handler/scheduled"`
 dispara uma coleta). Teste contra as fontes reais: `LIVE=1 pnpm vitest run test/live.test.ts`.
 
 ## Análise
@@ -59,9 +81,10 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
 
 ## Limitações conhecidas
 
-- **Sem motivo:** em 5 nov. 2026, nenhuma das 165 mil entradas de três LCR de usuário final (SERPRO RFB v5, Soluti
-  Múltipla, Certisign RFB G5) informava o motivo (`reasonCode`) nem a data de comprometimento (`invalidityDate`).
-  A taxa total serve de teto para a taxa de revogação por comprometimento da chave.
+- **Motivo, conforme a AC:** em 5 nov. 2026 nenhuma entrada trazia a data de comprometimento (`invalidityDate`), e o
+  motivo (`reasonCode`) variava por AC: nenhuma das 77.316 entradas do SERPRO RFB v5 nem das 33.889 da Soluti Múltipla v5;
+  88% das 7.629 da Certisign RFB G5 (4.007 como *keyCompromise*) e 94% das 1.086 da Serasa RFB v5. Onde falta o motivo,
+  a taxa total serve de teto para a taxa por comprometimento; onde existe, o uso dos códigos precisa ser validado.
 - **Meses antigos subestimados:** as ACs tiram da LCR os certificados que já expiraram, então a série reconstruída
   da primeira coleta é um piso para os meses antigos; os últimos 12 meses ficam quase completos.
 - **Fontes:** a lista começou com as LCR de certificados de AC (extraídas das âncoras ICP-Brasil) e algumas LCR de

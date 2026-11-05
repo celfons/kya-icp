@@ -15,6 +15,9 @@ function memoryBucket() {
       const o = objects.get(key);
       return o ? { text: async () => new TextDecoder().decode(o.body) } : null;
     },
+    async list({ prefix }) {
+      return { objects: [...objects.keys()].filter((k) => k.startsWith(prefix)).sort().map((key) => ({ key, size: objects.get(key)!.body.length, uploaded: new Date(0) })), truncated: false };
+    },
     async put(key, value, options) {
       const body = typeof value === "string" ? new TextEncoder().encode(value) : value instanceof Uint8Array ? value : new Uint8Array(value);
       objects.set(key, { body: body.slice(), meta: options?.customMetadata });
