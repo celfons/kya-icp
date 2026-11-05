@@ -7,3 +7,10 @@ authors:
 license: MIT
 repository-code: "https://github.com/celfons/kya-icp"
 date-released: 2026-11-05
+references:
+  - type: dataset
+    title: "kya-icp: revogações de certificados ICP-Brasil (LCR), séries mensais, distribuição horária e denominador do ITI"
+    doi: "10.5281/zenodo.23977027"
+    authors:
+      - family-names: "Fonseca Resende de Oliveira"
+        given-names: "Marcel"
