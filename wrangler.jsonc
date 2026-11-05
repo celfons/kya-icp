@@ -1,5 +1,5 @@
-// Deployed by .github/workflows/deploy.yml (wrangler deploy) with the CLOUDFLARE_API_TOKEN and
-// CLOUDFLARE_ACCOUNT_ID secrets of this repository. The R2 bucket is created by that workflow if missing.
+// Deployed by the Cloudflare Git integration (Workers Builds) on every push to main: the Worker must be named as
+// "name" below, and the R2 bucket "kya-icp-lcr" must exist in the account (README, Implantação).
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "kya-icp-collector",
