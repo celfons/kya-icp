@@ -1,5 +1,7 @@
 # kya-icp
 
+[![DOI](https://zenodo.org/badge/1446483752.svg)](https://doi.org/10.5281/zenodo.23973109)
+
 Coleta horária das **listas de certificados revogados (LCR)** da ICP-Brasil, guardadas brutas no Cloudflare R2,
 para medir **com que frequência** e **com que atraso** certificados ICP-Brasil são revogados.
 
