@@ -12,6 +12,7 @@
  *   GET /api/source/<id>/monthly.csv   monthly revocations of one source, CSV
  *   GET /api/monthly.csv       monthly revocations of every source, CSV
  *   GET /api/source/<id>/weekday-hour.csv, /api/weekday-hour.csv   revocations by weekday and hour (Brasília), CSV
+ *   GET /api/algorithms.csv    signature algorithm of every source over time (one row per run of equal OIDs), CSV
  *   GET /api/iti, /api/iti.csv national certificate counts from ITI, one row per stored version (iti.ts)
  *   GET /sources               the configured sources
  *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
@@ -63,6 +64,8 @@ async function readJson<T>(env: Env, key: string): Promise<T | null> {
 const WEEKDAYS = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "sabado"];
 const weekdayHourRows = (a: SourceAgg) => (a.weekday_hour ?? []).map((n, i) => [a.source, a.ac, a.kind, WEEKDAYS[Math.floor(i / 24)]!, i % 24, n]);
 const WH_HEADER = ["fonte", "ac", "tipo", "dia_da_semana", "hora_brasilia", "revogacoes"];
+const algorithmRows = (a: SourceAgg) => (a.algorithms ?? []).map((r) => [a.source, a.ac, a.kind, r.oid, r.name, r.first_this_update, r.last_this_update, r.versions]);
+const ALG_HEADER = ["fonte", "ac", "tipo", "algoritmo_oid", "algoritmo", "primeira_lcr", "ultima_lcr", "versoes"];
 const monthlyRows = (a: SourceAgg) => Object.entries(a.monthly).map(([month, n]) => [a.source, a.ac, a.kind, month, n]);
 
 async function latestRun(env: Env): Promise<{ key: string; outcomes: Record<string, number> } | null> {
@@ -116,15 +119,16 @@ export default {
       const obj = await env.LCR.get("agg/index.json");
       return obj ? new Response(obj.body, { headers: { ...COMMON, "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=300" } }) : json({ generated_at: null, sources: [] }, 200, 60);
     }
-    if (pathname === "/api/monthly.csv" || pathname === "/api/weekday-hour.csv") {
-      const monthlyCsv = pathname === "/api/monthly.csv";
+    const allCsv = { "/api/monthly.csv": [["fonte", "ac", "tipo", "mes", "revogacoes"], monthlyRows, "revogacoes-mensais.csv"], "/api/weekday-hour.csv": [WH_HEADER, weekdayHourRows, "revogacoes-dia-hora.csv"], "/api/algorithms.csv": [ALG_HEADER, algorithmRows, "algoritmos-de-assinatura.csv"] } as const;
+    if (pathname in allCsv) {
+      const [header, rowsOf, filename] = allCsv[pathname as keyof typeof allCsv];
       const index = await readJson<{ sources: { source: string }[] }>(env, "agg/index.json");
       const rows: (string | number)[][] = [];
       for (const s of index?.sources ?? []) {
         const a = await readJson<SourceAgg>(env, `agg/${s.source}.json`);
-        if (a) rows.push(...(monthlyCsv ? monthlyRows(a) : weekdayHourRows(a)));
+        if (a) rows.push(...rowsOf(a));
       }
-      return monthlyCsv ? csv(toCsv(["fonte", "ac", "tipo", "mes", "revogacoes"], rows), "revogacoes-mensais.csv") : csv(toCsv(WH_HEADER, rows), "revogacoes-dia-hora.csv");
+      return csv(toCsv([...header], rows), filename);
     }
     if (pathname === "/api/iti" || pathname === "/api/iti.csv") {
       const series = (await readJson<ItiRow[]>(env, "agg/iti.json")) ?? [];

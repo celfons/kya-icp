@@ -51,11 +51,11 @@ describe("runCollection", () => {
     let body = small;
     const { f } = fakeFetch({ "http://lcr.example/a.crl": () => new Response(body) });
     const r1 = await runCollection(opts({ sources: [src("a")], bucket, fetch: f }));
-    expect(r1.attempts[0]).toMatchObject({ outcome: "stored", http_status: 200, bytes: small.length, this_update: "2026-09-24T14:52:04Z", crl_number: "74", entries: 2 });
+    expect(r1.attempts[0]).toMatchObject({ outcome: "stored", http_status: 200, bytes: small.length, this_update: "2026-09-24T14:52:04Z", crl_number: "74", entries: 2, signature_algorithm: "1.2.840.113549.1.1.13" });
     const key1 = r1.attempts[0]!.key!;
     expect(key1).toMatch(/^lcr\/a\/20260924T145204Z_[0-9a-f]{16}\.crl$/);
     expect([...objects.get(key1)!.body]).toEqual([...small]); // byte for byte
-    expect(objects.get(key1)!.meta).toMatchObject({ source: "a", url: "http://lcr.example/a.crl", entries: "2", crl_number: "74", next_update: "2026-12-23T14:52:04Z" });
+    expect(objects.get(key1)!.meta).toMatchObject({ source: "a", url: "http://lcr.example/a.crl", entries: "2", crl_number: "74", next_update: "2026-12-23T14:52:04Z", signature_algorithm: "1.2.840.113549.1.1.13" });
 
     clock += 3_600_000;
     const r2 = await runCollection(opts({ sources: [src("a")], bucket, fetch: f }));
