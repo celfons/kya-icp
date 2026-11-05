@@ -36,6 +36,17 @@ export interface SourceAgg extends SourceSummary {
   monthly: Record<string, number>;
   /** Publication delay in hours of each revocation first seen during the collection, oldest first. */
   delays_h: number[];
+  /**
+   * Revocations of the latest version by weekday and hour in Brasília time (UTC-3), 168 counts: index = weekday * 24
+   * + hour, weekday 0 = Sunday. Shows whether revocation is a human, office-hours process or an automatic one.
+   */
+  weekday_hour?: number[];
+}
+
+/** Index into weekday_hour of an ISO 8601 UTC instant, in Brasília time (UTC-3, no daylight saving since 2019). */
+export function weekdayHourIndex(iso: string): number {
+  const d = new Date(Date.parse(iso) - 3 * 3_600_000);
+  return d.getUTCDay() * 24 + d.getUTCHours();
 }
 
 const round3 = (x: number) => Math.round(x * 1000) / 1000;
@@ -70,12 +81,15 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
   const monthly: Record<string, number> = {};
   const serials: string[] = [];
   const newDelays: number[] = [];
+  const weekdayHour = new Array<number>(168).fill(0);
   let withReason = 0;
   forEachEntry(body, (e) => {
     serials.push(e.serialHex);
     const month = e.revocationDate.slice(0, 7);
     monthly[month] = (monthly[month] ?? 0) + 1;
     if (e.hasReason) withReason++;
+    const wh = weekdayHourIndex(e.revocationDate);
+    if (wh >= 0 && wh < 168) weekdayHour[wh]!++;
     if (seen && !seen.has(e.serialHex)) newDelays.push(round3((thisUpdate - Date.parse(e.revocationDate)) / 3_600_000));
   });
   const delays = [...(prev?.delays_h ?? []), ...newDelays];
@@ -97,7 +111,8 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
     delay_max_h: sorted.length ? sorted[sorted.length - 1]! : null,
     updated_at: now.toISOString(),
     monthly: Object.fromEntries(Object.entries(monthly).sort(([a], [b]) => a.localeCompare(b))),
-    delays_h: delays
+    delays_h: delays,
+    weekday_hour: weekdayHour
   };
   await bucket.put(`seen/${src.id}.txt`, serials.join("\n"), { httpMetadata: { contentType: "text/plain" } });
   await bucket.put(`agg/${src.id}.json`, JSON.stringify(agg), { httpMetadata: { contentType: "application/json" } });
@@ -105,7 +120,7 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
 }
 
 export function summaryOf(a: SourceAgg): SourceSummary {
-  const { monthly: _m, delays_h: _d, ...s } = a;
+  const { monthly: _m, delays_h: _d, weekday_hour: _w, ...s } = a;
   return s;
 }
 

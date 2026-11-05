@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import type { SourceAgg } from "../src/aggregate.js";
+import { type SourceAgg, weekdayHourIndex } from "../src/aggregate.js";
 import { type Bucket, type Source, runCollection } from "../src/collector.js";
 import { type CrlEntry, forEachEntry, parseCrlHeader } from "../src/der.js";
 
@@ -56,6 +56,8 @@ describe("aggregates", () => {
     expect((await run()).attempts[0]).toMatchObject({ outcome: "stored", aggregated: true });
     let agg = json<SourceAgg>("agg/uf-teste.json");
     expect(agg).toMatchObject({ versions: 1, entries: 2, measured_delays: 0, delay_median_h: null, monthly: { "2026-09": 1, "2026-10": 1 } });
+    expect(agg.weekday_hour).toHaveLength(168);
+    expect(agg.weekday_hour!.reduce((a, b) => a + b, 0)).toBe(2);
 
     current = 1;
     clock += 6 * 3_600_000;
@@ -84,5 +86,13 @@ describe("aggregates", () => {
     clock += 3_600_000;
     expect((await run()).attempts[0]).toMatchObject({ outcome: "stored", aggregated: false });
     expect(json<SourceAgg>("agg/uf-teste.json").versions).toBe(3);
+  });
+});
+
+describe("weekdayHourIndex", () => {
+  it("uses Brasília time", () => {
+    // Thursday 2026-11-05 02:00Z is Wednesday 23:00 in Brasília
+    expect(weekdayHourIndex("2026-11-05T02:00:00Z")).toBe(3 * 24 + 23);
+    expect(weekdayHourIndex("2026-11-05T13:00:00Z")).toBe(4 * 24 + 10);
   });
 });

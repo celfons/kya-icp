@@ -39,6 +39,7 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
   a { color: var(--accent); }
   .note { border-left:3px solid var(--accent2); padding:6px 12px; background:var(--card); border-radius:0 8px 8px 0; }
   .err { color: var(--bad); }
+  table.heat td, table.heat th { padding: 2px 4px; font-size: 11px; text-align: center; min-width: 1.6rem; }
 </style>
 </head>
 <body>
@@ -53,7 +54,7 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
   <h2>Fontes</h2>
   <div class="toolbar">
     <label>Tipo <select id="kind"><option value="usuario-final">Usuário final</option><option value="ac">Certificados de AC</option><option value="">Todas</option></select></label>
-    <span class="muted">Clique numa linha para ver a série e o atraso.</span> <a href="/api/monthly.csv">Baixar CSV mensal de todas as fontes</a>
+    <span class="muted">Clique numa linha para ver a série e o atraso.</span> <a href="/api/monthly.csv">Baixar CSV mensal de todas as fontes</a> · <a href="/api/weekday-hour.csv">CSV por dia e hora</a>
   </div>
   <div class="scroll"><table>
     <thead><tr><th>Fonte</th><th>Versões</th><th>Última LCR (UTC)</th><th>Entradas</th><th>Com motivo</th><th>Atrasos medidos</th><th>Mediana (h)</th><th>p95 (h)</th><th>Máx. (h)</th></tr></thead>
@@ -69,6 +70,8 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
     </div>
     <p><b>Série mensal</b> <a id="dcsv" href="#">Baixar CSV</a></p>
     <div class="scroll" style="max-height:20rem"><table><thead><tr><th>Mês</th><th>Revogações</th></tr></thead><tbody id="mrows"></tbody></table></div>
+    <p><b>Revogações por dia da semana e hora</b> <span class="muted">(horário de Brasília, todas as entradas da LCR mais recente)</span> <a id="dwcsv" href="#">Baixar CSV</a></p>
+    <div class="scroll" id="wh"></div>
     <h2>Arquivos brutos</h2>
     <ul class="files" id="files"></ul>
   </section>
@@ -117,6 +120,20 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
       '<div class="card"><span class="muted">Entradas com motivo</span><b>' + fmt(reasons) + '</b></div>';
   }
 
+  function heat(wh) {
+    if (!wh || wh.length !== 168) return '<p class="muted">Disponível a partir da próxima versão coletada desta fonte.</p>';
+    const max = Math.max(1, ...wh), total = wh.reduce((a, b) => a + b, 0);
+    const office = wh.reduce((a, n, i) => { const d = Math.floor(i / 24), h = i % 24; return a + (d >= 1 && d <= 5 && h >= 8 && h < 18 ? n : 0); }, 0);
+    const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    let t = '<table class="heat"><thead><tr><th></th>' + Array.from({ length: 24 }, (_, h) => '<th>' + h + '</th>').join("") + '</tr></thead><tbody>';
+    for (let d = 0; d < 7; d++) {
+      t += '<tr><th>' + days[d] + '</th>';
+      for (let h = 0; h < 24; h++) { const n = wh[d * 24 + h]; t += '<td title="' + days[d] + ' ' + h + 'h: ' + fmt(n) + '" style="background:rgba(37,99,235,' + (n / max).toFixed(3) + ');color:' + (n / max > 0.5 ? '#fff' : 'inherit') + '">' + (n ? fmt(n) : '') + '</td>'; }
+      t += '</tr>';
+    }
+    return t + '</tbody></table><p class="muted">' + (total ? fmt(Math.round(100 * office / total)) + '% em dia útil, das 8h às 18h (horário comercial é 30% das horas da semana).' : 'Sem revogações.') + '</p>';
+  }
+
   async function detail(id) {
     selected = id; render();
     const [agg, files] = await Promise.all([fetch("/api/source/" + encodeURIComponent(id)).then((r) => r.json()), fetch("/api/files/" + encodeURIComponent(id)).then((r) => r.json())]);
@@ -127,6 +144,8 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
     $("monthly").innerHTML = bars(months.map((m) => agg.monthly[m]), months, "bar");
     $("dcsv").href = "/api/source/" + encodeURIComponent(id) + "/monthly.csv";
     $("mrows").innerHTML = Object.keys(agg.monthly).slice().reverse().map((m) => '<tr><td>' + esc(m) + '</td><td>' + fmt(agg.monthly[m]) + '</td></tr>').join("") || '<tr><td colspan="2" class="muted">Sem revogações.</td></tr>';
+    $("dwcsv").href = "/api/source/" + encodeURIComponent(id) + "/weekday-hour.csv";
+    $("wh").innerHTML = heat(agg.weekday_hour);
     const bins = [[0,1,"<1h"],[1,2,"1–2h"],[2,4,"2–4h"],[4,6,"4–6h"],[6,12,"6–12h"],[12,24,"12–24h"],[24,72,"1–3d"],[72,Infinity,">3d"]];
     const counts = bins.map(([a, b]) => agg.delays_h.filter((d) => d >= a && d < b).length);
     $("delays").innerHTML = agg.delays_h.length ? bars(counts, bins.map((b) => b[2]), "bar2", " revogações") : '<p class="muted">Ainda não há revogações novas desde o início da coleta desta fonte.</p>';

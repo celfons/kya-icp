@@ -55,6 +55,7 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/files/<fonte>` | versões brutas guardadas (`?cursor=` para paginar) |
 | `GET /api/source/<fonte>/monthly.csv` | revogações por mês de uma fonte, em CSV |
 | `GET /api/monthly.csv` | revogações por mês de todas as fontes, em CSV |
+| `GET /api/source/<fonte>/weekday-hour.csv`, `GET /api/weekday-hour.csv` | revogações por dia da semana e hora (horário de Brasília), em CSV |
 | `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
@@ -72,6 +73,10 @@ curl -X POST -H "Authorization: Bearer $RUN_TOKEN" https://kya-icp-collector.<su
 
 A resposta traz o log da execução e os resultados. Sem o secret a rota não existe (404); com o token errado, 401;
 uma nova execução menos de 5 minutos depois da anterior é recusada (429, com `Retry-After`).
+
+## Dia da semana e hora das revogações
+
+Cada agregado guarda as revogações da LCR mais recente em 168 casas (dia da semana × hora, horário de Brasília). Se a revogação é feita por pessoas, as entradas se concentram em dias úteis das 8h às 18h (30% das horas da semana); se é automática, espalham-se. Isso ajuda a modelar o atraso entre o pedido e a publicação. A LCR não traz a data de emissão do certificado, então a idade de quem é revogado não pode ser medida por aqui.
 
 ## Denominador (ITI)
 
