@@ -55,6 +55,20 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/files/<fonte>` | versões brutas guardadas (`?cursor=` para paginar) |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
+| `POST /api/run` | roda uma coleta agora (veja abaixo) |
+
+### Coleta sob demanda
+
+Para a primeira carga, ou depois de corrigir uma fonte, sem esperar o minuto 23: cadastre no Worker o secret
+`RUN_TOKEN` (*Workers & Pages → kya-icp-collector → Settings → Variables and Secrets → Add → Secret*, ou
+`pnpm exec wrangler secret put RUN_TOKEN`) com um valor longo e aleatório, e chame:
+
+```sh
+curl -X POST -H "Authorization: Bearer $RUN_TOKEN" https://kya-icp-collector.<sua-conta>.workers.dev/api/run
+```
+
+A resposta traz o log da execução e os resultados. Sem o secret a rota não existe (404); com o token errado, 401;
+uma nova execução menos de 5 minutos depois da anterior é recusada (429, com `Retry-After`).
 
 ## Implantação
 
@@ -64,7 +78,9 @@ Pela integração Git da Cloudflare (Workers Builds), sem GitHub Actions: cada p
 2. Em *Workers & Pages → Create → Import a repository*, conecte `celfons/kya-icp` com o nome de Worker
    **`kya-icp-collector`** (o `name` de `wrangler.jsonc`), diretório raiz `/` e comando de deploy `npx wrangler deploy`.
    O cron horário e o vínculo com o R2 vêm de `wrangler.jsonc`.
-3. Os agregados das LCR grandes pedem o plano Workers Paid (veja acima). A primeira coleta acontece no minuto 23
+3. Desligue os builds de outros branches (*Settings → Build → Branch control*): não há ambiente de preview, só a
+   produção pela `main`.
+4. Os agregados das LCR grandes pedem o plano Workers Paid (veja acima). A primeira coleta acontece no minuto 23
    seguinte ao deploy.
 
 O GitHub Actions roda só o CI (`.github/workflows/ci.yml`): typecheck, testes e o build do Worker.
