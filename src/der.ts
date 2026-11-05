@@ -73,6 +73,38 @@ export function readTime(b: Uint8Array, t: Tlv): string {
 
 const isTime = (t: Tlv) => t.tag === 0x17 || t.tag === 0x18;
 const hex = (u: Uint8Array) => [...u].map((x) => x.toString(16).padStart(2, "0")).join("");
+/** Dotted form of an OBJECT IDENTIFIER TLV (X.690 8.19). */
+export function readOid(b: Uint8Array, t: Tlv): string {
+  if (t.tag !== 0x06 || t.end === t.start) throw new DerError(`expected OBJECT IDENTIFIER at ${t.pos}`);
+  const arcs: number[] = [];
+  let v = 0;
+  for (let i = t.start; i < t.end; i++) {
+    v = v * 128 + (b[i]! & 0x7f);
+    if ((b[i]! & 0x80) !== 0) continue;
+    if (arcs.length > 0) arcs.push(v);
+    else if (v < 80) arcs.push(Math.floor(v / 40), v % 40);
+    else arcs.push(2, v - 80);
+    v = 0;
+  }
+  if ((b[t.end - 1]! & 0x80) !== 0) throw new DerError(`truncated OBJECT IDENTIFIER at ${t.pos}`);
+  return arcs.join(".");
+}
+
+/** Names of the signature algorithms seen in ICP-Brasil CRLs; anything else is shown by its OID. */
+export const SIGNATURE_ALGORITHMS: Record<string, string> = {
+  "1.2.840.113549.1.1.5": "sha1WithRSAEncryption",
+  "1.2.840.113549.1.1.11": "sha256WithRSAEncryption",
+  "1.2.840.113549.1.1.12": "sha384WithRSAEncryption",
+  "1.2.840.113549.1.1.13": "sha512WithRSAEncryption",
+  "1.2.840.113549.1.1.10": "RSASSA-PSS",
+  "1.2.840.10045.4.3.2": "ecdsa-with-SHA256",
+  "1.2.840.10045.4.3.3": "ecdsa-with-SHA384",
+  "1.2.840.10045.4.3.4": "ecdsa-with-SHA512",
+  "1.3.101.112": "Ed25519",
+  "1.3.101.113": "Ed448",
+  "1.3.6.1.4.1.44588.2.1": "Ed521" // id-Ed521, DOC-ICP-01.01
+};
+
 /** 2.5.29.20 cRLNumber */
 const OID_CRL_NUMBER = Uint8Array.of(0x55, 0x1d, 0x14);
 
@@ -85,6 +117,8 @@ export interface CrlHeader {
   crlNumber: string | null;
   /** Number of revoked entries listed. */
   entries: number;
+  /** Signature algorithm of the TBSCertList (dotted OID), e.g. 1.2.840.113549.1.1.13 for sha512WithRSAEncryption. */
+  signatureAlgorithm: string;
 }
 
 /** Parses the header of a DER CRL. Throws DerError when the bytes are not a CRL. */
@@ -96,8 +130,11 @@ export function parseCrlHeader(b: Uint8Array): CrlHeader {
   const f = children(b, tbs);
   let i = 0;
   if (f[i]?.tag === 0x02) i++; // version
-  if (f[i]?.tag !== 0x30) throw new DerError("missing signature algorithm");
-  i++;
+  const alg = f[i++];
+  if (alg?.tag !== 0x30) throw new DerError("missing signature algorithm");
+  const [algOid] = children(b, alg);
+  if (!algOid) throw new DerError("empty signature algorithm");
+  const signatureAlgorithm = readOid(b, algOid);
   const issuer = f[i++];
   if (!issuer || issuer.tag !== 0x30) throw new DerError("missing issuer");
   const thisT = f[i++];
@@ -121,7 +158,7 @@ export function parseCrlHeader(b: Uint8Array): CrlHeader {
       if (int.tag === 0x02) crlNumber = BigInt("0x" + (hex(b.subarray(int.start, int.end)) || "0")).toString();
     }
   }
-  return { issuerDerHex: hex(b.subarray(issuer.pos, issuer.end)), thisUpdate: readTime(b, thisT), nextUpdate, crlNumber, entries };
+  return { issuerDerHex: hex(b.subarray(issuer.pos, issuer.end)), thisUpdate: readTime(b, thisT), nextUpdate, crlNumber, entries, signatureAlgorithm };
 }
 
 /** The revokedCertificates SEQUENCE of a CRL, or null when the CRL lists nothing. */

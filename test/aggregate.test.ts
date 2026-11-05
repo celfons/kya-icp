@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { type SourceAgg, weekdayHourIndex } from "../src/aggregate.js";
+import { type SourceAgg, addAlgorithm, summaryOf, weekdayHourIndex } from "../src/aggregate.js";
 import { type Bucket, type Source, runCollection } from "../src/collector.js";
 import { type CrlEntry, forEachEntry, parseCrlHeader } from "../src/der.js";
 
@@ -76,16 +76,40 @@ describe("aggregates", () => {
       measured_delays: 2,
       delay_median_h: 7.5,
       delay_max_h: 10,
-      monthly: { "2026-09": 1, "2026-10": 1, "2026-11": 2 }
+      monthly: { "2026-09": 1, "2026-10": 1, "2026-11": 2 },
+      signature_algorithm: "1.2.840.10045.4.3.2",
+      signature_algorithm_name: "ecdsa-with-SHA256",
+      bytes: seq[2]!.length,
+      algorithms: [{ oid: "1.2.840.10045.4.3.2", name: "ecdsa-with-SHA256", first_this_update: "2026-11-05T00:00:00Z", last_this_update: "2026-11-05T12:00:00Z", versions: 3 }]
     });
-    const index = json<{ sources: { source: string; delay_median_h: number }[] }>("agg/index.json");
-    expect(index.sources).toEqual([expect.objectContaining({ source: "uf-teste", delay_median_h: 7.5 })]);
+    const index = json<{ sources: Record<string, unknown>[] }>("agg/index.json");
+    expect(index.sources).toEqual([expect.objectContaining({ source: "uf-teste", delay_median_h: 7.5, signature_algorithm_name: "ecdsa-with-SHA256" })]);
+    expect(index.sources[0]).not.toHaveProperty("algorithms");
 
     // A mirror serving an older version: stored raw (it is a different file), but never folded into the aggregate.
     current = 1;
     clock += 3_600_000;
     expect((await run()).attempts[0]).toMatchObject({ outcome: "stored", aggregated: false });
     expect(json<SourceAgg>("agg/uf-teste.json").versions).toBe(3);
+  });
+});
+
+describe("signature algorithm history", () => {
+  it("opens a run when the OID changes and extends it while it stays; unknown OIDs keep the OID as name", () => {
+    let runs = addAlgorithm([], "1.2.840.113549.1.1.13", "2026-01-01T00:00:00Z");
+    runs = addAlgorithm(runs, "1.2.840.113549.1.1.13", "2026-02-01T00:00:00Z");
+    runs = addAlgorithm(runs, "1.3.6.1.4.1.44588.2.1", "2026-03-01T00:00:00Z");
+    runs = addAlgorithm(runs, "1.2.3.4", "2026-04-01T00:00:00Z");
+    expect(runs).toEqual([
+      { oid: "1.2.840.113549.1.1.13", name: "sha512WithRSAEncryption", first_this_update: "2026-01-01T00:00:00Z", last_this_update: "2026-02-01T00:00:00Z", versions: 2 },
+      { oid: "1.3.6.1.4.1.44588.2.1", name: "Ed521", first_this_update: "2026-03-01T00:00:00Z", last_this_update: "2026-03-01T00:00:00Z", versions: 1 },
+      { oid: "1.2.3.4", name: "1.2.3.4", first_this_update: "2026-04-01T00:00:00Z", last_this_update: "2026-04-01T00:00:00Z", versions: 1 }
+    ]);
+  });
+
+  it("an aggregate written before the field existed summarizes with nulls", () => {
+    const old = { source: "x", ac: "X", kind: "ac", url: "http://x", versions: 1, first_this_update: "", last_this_update: "", next_update: null, entries: 0, entries_with_reason: 0, measured_delays: 0, delay_median_h: null, delay_p95_h: null, delay_max_h: null, updated_at: "", monthly: {}, delays_h: [] } as unknown as SourceAgg;
+    expect(summaryOf(old)).toMatchObject({ signature_algorithm: null, signature_algorithm_name: null, bytes: null });
   });
 });
 

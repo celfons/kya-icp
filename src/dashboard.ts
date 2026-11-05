@@ -54,11 +54,11 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
   <h2>Fontes</h2>
   <div class="toolbar">
     <label>Tipo <select id="kind"><option value="usuario-final">Usuário final</option><option value="ac">Certificados de AC</option><option value="">Todas</option></select></label>
-    <span class="muted">Clique numa linha para ver a série e o atraso.</span> <a href="/api/monthly.csv">Baixar CSV mensal de todas as fontes</a> · <a href="/api/weekday-hour.csv">CSV por dia e hora</a>
+    <span class="muted">Clique numa linha para ver a série e o atraso.</span> <a href="/api/monthly.csv">Baixar CSV mensal de todas as fontes</a> · <a href="/api/weekday-hour.csv">CSV por dia e hora</a> · <a href="/api/algorithms.csv">CSV dos algoritmos de assinatura</a>
   </div>
   <div class="scroll"><table>
-    <thead><tr><th>Fonte</th><th>Versões</th><th>Última LCR (UTC)</th><th>Entradas</th><th>Com motivo</th><th>Atrasos medidos</th><th>Mediana (h)</th><th>p95 (h)</th><th>Máx. (h)</th></tr></thead>
-    <tbody id="rows"><tr><td colspan="9" class="muted">Sem dados ainda.</td></tr></tbody>
+    <thead><tr><th>Fonte</th><th>Versões</th><th>Última LCR (UTC)</th><th>Entradas</th><th>Algoritmo</th><th>Com motivo</th><th>Atrasos medidos</th><th>Mediana (h)</th><th>p95 (h)</th><th>Máx. (h)</th></tr></thead>
+    <tbody id="rows"><tr><td colspan="10" class="muted">Sem dados ainda.</td></tr></tbody>
   </table></div>
 
   <section id="detail" hidden>
@@ -109,8 +109,8 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
     const kind = $("kind").value;
     const list = summary.filter((s) => !kind || s.kind === kind).sort((a, b) => b.entries - a.entries);
     $("rows").innerHTML = list.length ? list.map((s) =>
-      '<tr data-id="' + esc(s.source) + '" aria-selected="' + (s.source === selected) + '"><td>' + esc(s.ac) + '<span class="tag">' + esc(s.source) + '</span></td><td>' + fmt(s.versions) + '</td><td>' + when(s.last_this_update) + '</td><td>' + fmt(s.entries) + '</td><td>' + fmt(s.entries_with_reason) + '</td><td>' + fmt(s.measured_delays) + '</td><td>' + fmtH(s.delay_median_h) + '</td><td>' + fmtH(s.delay_p95_h) + '</td><td>' + fmtH(s.delay_max_h) + '</td></tr>'
-    ).join("") : '<tr><td colspan="9" class="muted">Sem dados ainda: a primeira coleta acontece no minuto 23 de cada hora.</td></tr>';
+      '<tr data-id="' + esc(s.source) + '" aria-selected="' + (s.source === selected) + '"><td>' + esc(s.ac) + '<span class="tag">' + esc(s.source) + '</span></td><td>' + fmt(s.versions) + '</td><td>' + when(s.last_this_update) + '</td><td>' + fmt(s.entries) + '</td><td>' + esc(s.signature_algorithm_name || "—") + '</td><td>' + fmt(s.entries_with_reason) + '</td><td>' + fmt(s.measured_delays) + '</td><td>' + fmtH(s.delay_median_h) + '</td><td>' + fmtH(s.delay_p95_h) + '</td><td>' + fmtH(s.delay_max_h) + '</td></tr>'
+    ).join("") : '<tr><td colspan="10" class="muted">Sem dados ainda: a primeira coleta acontece no minuto 23 de cada hora.</td></tr>';
     const uf = summary.filter((s) => s.kind === "usuario-final");
     const total = uf.reduce((a, s) => a + s.entries, 0), delays = uf.reduce((a, s) => a + s.measured_delays, 0), reasons = uf.reduce((a, s) => a + s.entries_with_reason, 0);
     $("cards").innerHTML =

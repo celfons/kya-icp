@@ -31,8 +31,8 @@ state/<fonte>.json                           última versão gravada (deduplica�
 log/<AAAA>/<MM>/<DD>/<HHMMSS>Z.ndjson        uma linha por fonte e execução, inclusive falhas
 ```
 
-Os metadados de cada objeto trazem a fonte, a URL, a hora da coleta, `thisUpdate`, `nextUpdate`, o número da LCR e
-o total de entradas. O Worker **não decodifica as entradas**: só lê o cabeçalho (`src/der.ts`), o que leva poucos
+Os metadados de cada objeto trazem a fonte, a URL, a hora da coleta, `thisUpdate`, `nextUpdate`, o número da LCR,
+o total de entradas e o OID do algoritmo de assinatura. O Worker **não decodifica as entradas**: só lê o cabeçalho (`src/der.ts`), o que leva poucos
 milissegundos mesmo na maior lista (SERPRO, 2,3 MB e 77 mil entradas: 3,7 ms). Toda a análise é offline, a partir dos
 arquivos brutos, que são a evidência auditável.
 
@@ -41,7 +41,8 @@ LCR a cada visita:
 
 ```
 seen/<fonte>.txt    números de série da última versão agregada
-agg/<fonte>.json    revogações por mês (da LCR mais recente) e o atraso de publicação de cada revogação nova
+agg/<fonte>.json    revogações por mês (da LCR mais recente), o atraso de publicação de cada revogação nova e o
+                    histórico do algoritmo de assinatura
 agg/index.json      resumo de todas as fontes
 ```
 
@@ -60,6 +61,7 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/source/<fonte>/monthly.csv` | revogações por mês de uma fonte, em CSV |
 | `GET /api/monthly.csv` | revogações por mês de todas as fontes, em CSV |
 | `GET /api/source/<fonte>/weekday-hour.csv`, `GET /api/weekday-hour.csv` | revogações por dia da semana e hora (horário de Brasília), em CSV |
+| `GET /api/algorithms.csv` | algoritmo de assinatura de cada fonte ao longo do tempo, uma linha por trecho de mesmo OID, em CSV |
 | `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
@@ -81,6 +83,17 @@ uma nova execução menos de 5 minutos depois da anterior é recusada (429, com 
 ## Dia da semana e hora das revogações
 
 Cada agregado guarda as revogações da LCR mais recente em 168 casas (dia da semana × hora, horário de Brasília). Se a revogação é feita por pessoas, as entradas se concentram em dias úteis das 8h às 18h (30% das horas da semana); se é automática, espalham-se. Isso ajuda a modelar o atraso entre o pedido e a publicação. A LCR não traz a data de emissão do certificado, então a idade de quem é revogado não pode ser medida por aqui.
+
+## Algoritmo de assinatura
+
+Cada versão guardada registra o OID do algoritmo que assina a LCR (por exemplo `1.2.840.113549.1.1.13`,
+sha512WithRSAEncryption). O agregado de cada fonte guarda o algoritmo e o tamanho da versão mais recente e o
+histórico em trechos de mesmo OID (`algorithms`), de modo que uma troca de algoritmo ou de cadeia por uma AC aparece
+com a hora em que aconteceu. Em novembro de 2026 as LCR de usuário final eram todas RSA; as cadeias novas da AC Raiz
+usam ECDSA (v3, v4), Ed448 (v6, AC INMETRO) e Ed521 (v7, `1.3.6.1.4.1.44588.2.1`, DOC-ICP-01.01). Os agregados
+gravados antes deste campo começam o histórico na primeira versão guardada depois dele; os arquivos brutos em R2
+permitem reconstruir o período anterior offline. Se cada biblioteca X.509 consegue verificar essas LCR é medido em
+`kya-brasil/research/crl-compat`.
 
 ## Denominador (ITI)
 

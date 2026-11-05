@@ -41,6 +41,8 @@ export interface Attempt {
   next_update: string | null;
   crl_number: string | null;
   entries: number | null;
+  /** Signature algorithm of the CRL (dotted OID), when it parsed. */
+  signature_algorithm: string | null;
   key: string | null;
   error: string | null;
   /** Whether the stored version was folded into agg/<source>.json (null when nothing was stored). */
@@ -92,7 +94,7 @@ export function validateSources(input: unknown): Source[] {
 /** Downloads one source and stores it when it changed. Never throws: every problem becomes an Attempt. */
 export async function collectOne(src: Source, o: RunOptions): Promise<Attempt> {
   const started = o.now();
-  const base: Attempt = { source: src.id, url: src.url, fetched_at: started.toISOString(), outcome: "network_error", http_status: null, bytes: null, ms: 0, sha256: null, this_update: null, next_update: null, crl_number: null, entries: null, key: null, error: null, aggregated: null };
+  const base: Attempt = { source: src.id, url: src.url, fetched_at: started.toISOString(), outcome: "network_error", http_status: null, bytes: null, ms: 0, sha256: null, this_update: null, next_update: null, crl_number: null, entries: null, signature_algorithm: null, key: null, error: null, aggregated: null };
   const done = (a: Partial<Attempt>): Attempt => ({ ...base, ...a, ms: o.now().getTime() - started.getTime() });
   let body: Uint8Array;
   try {
@@ -119,7 +121,7 @@ export async function collectOne(src: Source, o: RunOptions): Promise<Attempt> {
   } catch (e) {
     return done({ outcome: "not_a_crl", bytes: body.length, sha256, error: e instanceof DerError ? e.message : String(e) });
   }
-  const meta = { bytes: body.length, sha256, this_update: h.thisUpdate, next_update: h.nextUpdate, crl_number: h.crlNumber, entries: h.entries };
+  const meta = { bytes: body.length, sha256, this_update: h.thisUpdate, next_update: h.nextUpdate, crl_number: h.crlNumber, entries: h.entries, signature_algorithm: h.signatureAlgorithm };
   const stateKey = `state/${src.id}.json`;
   let prev: State | null = null;
   try {
@@ -132,7 +134,7 @@ export async function collectOne(src: Source, o: RunOptions): Promise<Attempt> {
   const key = `lcr/${src.id}/${compact(h.thisUpdate)}_${sha256.slice(0, 16)}.crl`;
   await o.bucket.put(key, body, {
     httpMetadata: { contentType: "application/pkix-crl" },
-    customMetadata: { source: src.id, ac: src.ac, url: src.url, fetched_at: base.fetched_at, sha256, this_update: h.thisUpdate, next_update: h.nextUpdate ?? "", crl_number: h.crlNumber ?? "", entries: String(h.entries), issuer_der_hex: h.issuerDerHex.slice(0, 1024) }
+    customMetadata: { source: src.id, ac: src.ac, url: src.url, fetched_at: base.fetched_at, sha256, this_update: h.thisUpdate, next_update: h.nextUpdate ?? "", crl_number: h.crlNumber ?? "", entries: String(h.entries), signature_algorithm: h.signatureAlgorithm, issuer_der_hex: h.issuerDerHex.slice(0, 1024) }
   });
   const state: State = { sha256, this_update: h.thisUpdate, key, stored_at: o.now().toISOString() };
   await o.bucket.put(stateKey, JSON.stringify(state), { httpMetadata: { contentType: "application/json" } });

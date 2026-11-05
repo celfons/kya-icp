@@ -9,9 +9,13 @@
  *
  * The delay of a serial is the thisUpdate of the first collected version that lists it minus its revocation date.
  * Serials already in the first collected version have no measurable delay and are not counted.
+ *
+ * Each aggregate also keeps the signature algorithm of every stored version as runs of equal OIDs (`algorithms`),
+ * so a change of algorithm or chain by an AC shows up with the hour it happened. Aggregates written before this
+ * field existed start the history at the first version stored after it.
  */
 import type { Bucket, Source } from "./collector.js";
-import { type CrlHeader, forEachEntry } from "./der.js";
+import { type CrlHeader, SIGNATURE_ALGORITHMS, forEachEntry } from "./der.js";
 
 export interface SourceSummary {
   source: string;
@@ -24,6 +28,11 @@ export interface SourceSummary {
   next_update: string | null;
   entries: number;
   entries_with_reason: number;
+  /** Signature algorithm (dotted OID) and size in bytes of the latest version; null in aggregates written before. */
+  signature_algorithm: string | null;
+  /** Name of signature_algorithm (SIGNATURE_ALGORITHMS), or the OID when unknown. */
+  signature_algorithm_name: string | null;
+  bytes: number | null;
   measured_delays: number;
   delay_median_h: number | null;
   delay_p95_h: number | null;
@@ -41,6 +50,26 @@ export interface SourceAgg extends SourceSummary {
    * + hour, weekday 0 = Sunday. Shows whether revocation is a human, office-hours process or an automatic one.
    */
   weekday_hour?: number[];
+  /** Signature algorithm of the stored versions, oldest first, one run per change. */
+  algorithms?: AlgorithmRun[];
+}
+
+export interface AlgorithmRun {
+  /** Dotted OID. */
+  oid: string;
+  /** Name from SIGNATURE_ALGORITHMS, or the OID itself when unknown. */
+  name: string;
+  /** thisUpdate of the first and last stored version signed with it. */
+  first_this_update: string;
+  last_this_update: string;
+  versions: number;
+}
+
+/** Appends one stored version to the algorithm history (a new run when the OID changed). */
+export function addAlgorithm(runs: AlgorithmRun[], oid: string, thisUpdate: string): AlgorithmRun[] {
+  const last = runs[runs.length - 1];
+  if (last?.oid === oid) return [...runs.slice(0, -1), { ...last, last_this_update: thisUpdate, versions: last.versions + 1 }];
+  return [...runs, { oid, name: SIGNATURE_ALGORITHMS[oid] ?? oid, first_this_update: thisUpdate, last_this_update: thisUpdate, versions: 1 }];
 }
 
 /** Index into weekday_hour of an ISO 8601 UTC instant, in Brasília time (UTC-3, no daylight saving since 2019). */
@@ -105,6 +134,9 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
     next_update: h.nextUpdate,
     entries: serials.length,
     entries_with_reason: withReason,
+    signature_algorithm: h.signatureAlgorithm,
+    signature_algorithm_name: SIGNATURE_ALGORITHMS[h.signatureAlgorithm] ?? h.signatureAlgorithm,
+    bytes: body.length,
     measured_delays: delays.length,
     delay_median_h: quantile(sorted, 0.5),
     delay_p95_h: quantile(sorted, 0.95),
@@ -112,7 +144,8 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
     updated_at: now.toISOString(),
     monthly: Object.fromEntries(Object.entries(monthly).sort(([a], [b]) => a.localeCompare(b))),
     delays_h: delays,
-    weekday_hour: weekdayHour
+    weekday_hour: weekdayHour,
+    algorithms: addAlgorithm(prev?.algorithms ?? [], h.signatureAlgorithm, h.thisUpdate)
   };
   await bucket.put(`seen/${src.id}.txt`, serials.join("\n"), { httpMetadata: { contentType: "text/plain" } });
   await bucket.put(`agg/${src.id}.json`, JSON.stringify(agg), { httpMetadata: { contentType: "application/json" } });
@@ -120,8 +153,8 @@ export async function updateAggregate(bucket: Bucket, src: Source, body: Uint8Ar
 }
 
 export function summaryOf(a: SourceAgg): SourceSummary {
-  const { monthly: _m, delays_h: _d, weekday_hour: _w, ...s } = a;
-  return s;
+  const { monthly: _m, delays_h: _d, weekday_hour: _w, algorithms: _a, ...s } = a;
+  return { ...s, signature_algorithm: s.signature_algorithm ?? null, signature_algorithm_name: s.signature_algorithm_name ?? null, bytes: s.bytes ?? null };
 }
 
 /** Rebuilds agg/index.json from the per-source aggregates of the given sources. */
