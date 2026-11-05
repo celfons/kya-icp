@@ -53,6 +53,9 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/summary` | `agg/index.json` |
 | `GET /api/source/<fonte>` | `agg/<fonte>.json` |
 | `GET /api/files/<fonte>` | versões brutas guardadas (`?cursor=` para paginar) |
+| `GET /api/source/<fonte>/monthly.csv` | revogações por mês de uma fonte, em CSV |
+| `GET /api/monthly.csv` | revogações por mês de todas as fontes, em CSV |
+| `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
 | `POST /api/run` | roda uma coleta agora (veja abaixo) |
@@ -69,6 +72,10 @@ curl -X POST -H "Authorization: Bearer $RUN_TOKEN" https://kya-icp-collector.<su
 
 A resposta traz o log da execução e os resultados. Sem o secret a rota não existe (404); com o token errado, 401;
 uma nova execução menos de 5 minutos depois da anterior é recusada (429, com `Retry-After`).
+
+## Denominador (ITI)
+
+A cada coleta o Worker baixa `https://numeros.iti.gov.br/assets/paneljson/panels.json` e, quando o arquivo muda, guarda a versão bruta em `iti/panels/` e acrescenta uma linha a `agg/iti.json` (ativos, emitidos no ano, ativos por titular e por tipo, emissões mensais). O ITI não mantém histórico desse arquivo; a série começa na primeira coleta. Não há contagem por AC: a taxa por AC depende de pedido pela Lei de Acesso à Informação.
 
 ## Implantação
 

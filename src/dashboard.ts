@@ -48,11 +48,12 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
   <p class="muted" id="status">Carregando…</p>
 
   <div class="cards" id="cards"></div>
+  <p class="muted" id="iti">Denominador (ITI): carregando…</p>
 
   <h2>Fontes</h2>
   <div class="toolbar">
     <label>Tipo <select id="kind"><option value="usuario-final">Usuário final</option><option value="ac">Certificados de AC</option><option value="">Todas</option></select></label>
-    <span class="muted">Clique numa linha para ver a série e o atraso.</span>
+    <span class="muted">Clique numa linha para ver a série e o atraso.</span> <a href="/api/monthly.csv">Baixar CSV mensal de todas as fontes</a>
   </div>
   <div class="scroll"><table>
     <thead><tr><th>Fonte</th><th>Versões</th><th>Última LCR (UTC)</th><th>Entradas</th><th>Com motivo</th><th>Atrasos medidos</th><th>Mediana (h)</th><th>p95 (h)</th><th>Máx. (h)</th></tr></thead>
@@ -66,6 +67,8 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
       <div><p><b>Revogações por mês</b> <span class="muted">(últimos 36 meses da LCR mais recente)</span></p><div id="monthly"></div></div>
       <div><p><b>Atraso de publicação</b> <span class="muted">(da revogação à primeira LCR coletada que a lista)</span></p><div id="delays"></div></div>
     </div>
+    <p><b>Série mensal</b> <a id="dcsv" href="#">Baixar CSV</a></p>
+    <div class="scroll" style="max-height:20rem"><table><thead><tr><th>Mês</th><th>Revogações</th></tr></thead><tbody id="mrows"></tbody></table></div>
     <h2>Arquivos brutos</h2>
     <ul class="files" id="files"></ul>
   </section>
@@ -122,6 +125,8 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
     $("dsub").textContent = agg.url + " · " + agg.versions + " versões desde " + when(agg.first_this_update);
     const months = Object.keys(agg.monthly).slice(-36);
     $("monthly").innerHTML = bars(months.map((m) => agg.monthly[m]), months, "bar");
+    $("dcsv").href = "/api/source/" + encodeURIComponent(id) + "/monthly.csv";
+    $("mrows").innerHTML = Object.keys(agg.monthly).slice().reverse().map((m) => '<tr><td>' + esc(m) + '</td><td>' + fmt(agg.monthly[m]) + '</td></tr>').join("") || '<tr><td colspan="2" class="muted">Sem revogações.</td></tr>';
     const bins = [[0,1,"<1h"],[1,2,"1–2h"],[2,4,"2–4h"],[4,6,"4–6h"],[6,12,"6–12h"],[12,24,"12–24h"],[24,72,"1–3d"],[72,Infinity,">3d"]];
     const counts = bins.map(([a, b]) => agg.delays_h.filter((d) => d >= a && d < b).length);
     $("delays").innerHTML = agg.delays_h.length ? bars(counts, bins.map((b) => b[2]), "bar2", " revogações") : '<p class="muted">Ainda não há revogações novas desde o início da coleta desta fonte.</p>';
@@ -131,6 +136,11 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
 
   $("rows").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) detail(tr.dataset.id).catch((err) => { $("dsub").innerHTML = '<span class="err">' + esc(err.message) + '</span>'; }); });
   $("kind").addEventListener("change", render);
+
+  fetch("/api/iti").then((r) => r.json()).then((rows) => {
+    const r = rows[rows.length - 1];
+    $("iti").innerHTML = r ? "Denominador (ITI): <b>" + fmt(r.active) + "</b> certificados ativos no país, " + fmt(r.issued_this_year) + " emitidos no ano · dados de " + when(r.as_of) + " UTC · " + rows.length + " versões guardadas · <a href=\"/api/iti.csv\">Baixar CSV</a>" : "Denominador (ITI): nenhuma versão guardada ainda.";
+  }).catch(() => { $("iti").textContent = "Denominador (ITI): indisponível."; });
 
   Promise.all([fetch("/api/summary").then((r) => r.json()), fetch("/api/status").then((r) => r.json())]).then(([s, st]) => {
     summary = s.sources || [];
