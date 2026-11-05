@@ -1,0 +1,9 @@
+{
+  "title": "kya-icp: coleta horária e séries de revogação das LCR da ICP-Brasil",
+  "description": "Coletor das listas de certificados revogados (LCR) da ICP-Brasil em Cloudflare Workers e R2: arquivos brutos, séries mensais, distribuição por dia da semana e hora, atraso de publicação e o denominador do ITI.",
+  "upload_type": "software",
+  "creators": [{ "name": "Fonseca Resende de Oliveira, Marcel" }],
+  "license": "MIT",
+  "language": "por",
+  "keywords": ["ICP-Brasil", "LCR", "CRL", "revogação", "certificado digital", "PKI"]
+}
