@@ -8,10 +8,5 @@
   "observability": { "enabled": true },
   // Hourly, off the top of the hour. The CRLs of end-user certificates are issued every 1 to 6 hours.
   "triggers": { "crons": ["23 * * * *"] },
-  "r2_buckets": [{ "binding": "LCR", "bucket_name": "kya-icp-lcr" }],
-  // Preview deployments of pull requests (Workers Builds runs `wrangler preview` on non-main branches) use their
-  // own bucket, so a preview never touches the production data. Cron triggers do not run in previews.
-  "previews": {
-    "r2_buckets": [{ "binding": "LCR", "bucket_name": "kya-icp-lcr-preview" }]
-  }
+  "r2_buckets": [{ "binding": "LCR", "bucket_name": "kya-icp-lcr" }]
 }
