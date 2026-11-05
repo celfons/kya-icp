@@ -292,5 +292,59 @@
     "ac": "AC Secretaria da Receita Federal do Brasil v4 (LCR de certificados de AC)",
     "url": "http://www.receita.fazenda.gov.br/acrfb/acrfbv4.crl",
     "kind": "ac"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v4",
+    "ac": "Autoridade Certificadora SERPRORFBv4 (encerrada, LCR final de 2024)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprorfbv4.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v3",
+    "ac": "Autoridade Certificadora SERPRORFBv3 (encerrada, LCR final de 2019)",
+    "url": "http://ccd.serpro.gov.br/lcr/acserprorfbv3.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v1",
+    "ac": "Autoridade Certificadora do SERPRO RFB (encerrada, LCR final de 2016)",
+    "url": "http://ccd.serpro.gov.br/lcr/acserprorfb.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-rfb-v1",
+    "ac": "AC SOLUTI RFB v1 (encerrada, LCR final de 2021)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-rfb-v1.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-multipla-g7",
+    "ac": "AC Certisign Multipla G7",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignMultiplaG7/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-multipla-g8",
+    "ac": "AC Certisign Multipla G8",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignMultiplaG8/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv2",
+    "ac": "Autoridade Certificadora Raiz Brasileira v2 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv2.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv3",
+    "ac": "Autoridade Certificadora Raiz Brasileira v3 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv3.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv4",
+    "ac": "Autoridade Certificadora Raiz Brasileira v4 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv4.crl",
+    "kind": "ac"
   }
 ]
