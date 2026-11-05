@@ -78,7 +78,9 @@ Pela integração Git da Cloudflare (Workers Builds), sem GitHub Actions: cada p
 2. Em *Workers & Pages → Create → Import a repository*, conecte `celfons/kya-icp` com o nome de Worker
    **`kya-icp-collector`** (o `name` de `wrangler.jsonc`), diretório raiz `/` e comando de deploy `npx wrangler deploy`.
    O cron horário e o vínculo com o R2 vêm de `wrangler.jsonc`.
-3. Os agregados das LCR grandes pedem o plano Workers Paid (veja acima). A primeira coleta acontece no minuto 23
+3. Para os previews de pull requests (Workers Builds roda `wrangler preview` nos outros branches), crie também o bucket
+   **`kya-icp-lcr-preview`**: o preview usa esse bucket, nunca o de produção, e não roda o cron.
+4. Os agregados das LCR grandes pedem o plano Workers Paid (veja acima). A primeira coleta acontece no minuto 23
    seguinte ao deploy.
 
 O GitHub Actions roda só o CI (`.github/workflows/ci.yml`): typecheck, testes e o build do Worker.
