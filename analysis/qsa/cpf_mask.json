@@ -1,0 +1,9 @@
+{
+ "mascaras_amostradas": 2000,
+ "min": 1000,
+ "max": 1000,
+ "media": 1000.0,
+ "brute_force_mascara_exemplo_candidatos": 100000,
+ "brute_force_validos": 1000,
+ "nota": "digitos 1-3 livres (1000 combinacoes); DV determinados -> 1000 CPFs validos por mascara (menos 1 se houver repetidos, ex. 111111111-11); o 9o digito visivel e a regiao fiscal"
+}
