@@ -9,12 +9,18 @@
  *   GET /api/source/<id>       agg/<id>.json: monthly series and publication delays of one source
  *   GET /api/files/<id>        raw versions stored for one source (?cursor= to page)
  *   GET /files/<key>           a raw CRL (lcr/...) or a run log (log/...)
+ *   GET /api/source/<id>/monthly.csv   monthly revocations of one source, CSV
+ *   GET /api/monthly.csv       monthly revocations of every source, CSV
+ *   GET /api/iti, /api/iti.csv national certificate counts from ITI, one row per stored version (iti.ts)
  *   GET /sources               the configured sources
  *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
  */
 import sourcesJson from "../sources.json";
 import { ID_RE, runCollection, validateSources } from "./collector.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
+import type { SourceAgg } from "./aggregate.js";
+import { toCsv } from "./csv.js";
+import { type ItiRow, snapshotIti } from "./iti.js";
 import { gateRun } from "./run.js";
 
 export interface Env {
@@ -35,15 +41,25 @@ const OPTIONS = {
 /** One collection run; returns where its log went and the outcome counts. */
 async function collect(env: Env) {
   const { logKey, attempts } = await runCollection({ ...OPTIONS, sources, bucket: env.LCR, fetch: (input, init) => fetch(input, init), now: () => new Date() });
+  const iti = await snapshotIti(env.LCR, (input, init) => fetch(input, init), new Date());
   const outcomes: Record<string, number> = {};
   for (const a of attempts) outcomes[a.outcome] = (outcomes[a.outcome] ?? 0) + 1;
-  return { logKey, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
+  return { logKey, iti: iti.outcome === "error" ? { outcome: "error", error: iti.error } : { outcome: iti.outcome, as_of: iti.row.as_of, active: iti.row.active }, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
 }
 
 const COMMON = { "access-control-allow-origin": "*", "x-content-type-options": "nosniff" };
 const json = (body: unknown, status = 200, maxAge = 60) =>
   new Response(JSON.stringify(body), { status, headers: { ...COMMON, "content-type": "application/json; charset=utf-8", "cache-control": `public, max-age=${maxAge}` } });
 const notFound = () => json({ error: "not found" }, 404, 0);
+const csv = (body: string, filename: string) =>
+  new Response(body, { headers: { ...COMMON, "content-type": "text/csv; charset=utf-8", "cache-control": "public, max-age=300", "content-disposition": `attachment; filename="${filename}"` } });
+
+async function readJson<T>(env: Env, key: string): Promise<T | null> {
+  const o = await env.LCR.get(key);
+  return o ? ((await o.json()) as T) : null;
+}
+
+const monthlyRows = (a: SourceAgg) => Object.entries(a.monthly).map(([month, n]) => [a.source, a.ac, a.kind, month, n]);
 
 async function latestRun(env: Env): Promise<{ key: string; outcomes: Record<string, number> } | null> {
   const now = Date.now();
@@ -96,7 +112,29 @@ export default {
       const obj = await env.LCR.get("agg/index.json");
       return obj ? new Response(obj.body, { headers: { ...COMMON, "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=300" } }) : json({ generated_at: null, sources: [] }, 200, 60);
     }
-    let m = /^\/api\/source\/([^/]+)$/.exec(pathname);
+    if (pathname === "/api/monthly.csv") {
+      const index = await readJson<{ sources: { source: string }[] }>(env, "agg/index.json");
+      const rows: (string | number)[][] = [];
+      for (const s of index?.sources ?? []) {
+        const a = await readJson<SourceAgg>(env, `agg/${s.source}.json`);
+        if (a) rows.push(...monthlyRows(a));
+      }
+      return csv(toCsv(["fonte", "ac", "tipo", "mes", "revogacoes"], rows), "revogacoes-mensais.csv");
+    }
+    if (pathname === "/api/iti" || pathname === "/api/iti.csv") {
+      const series = (await readJson<ItiRow[]>(env, "agg/iti.json")) ?? [];
+      if (pathname === "/api/iti") return json(series, 200, 300);
+      const h = (r: ItiRow, k: string) => r.active_by_holder[k] ?? null;
+      const t = (r: ItiRow, k: string) => r.active_by_type[k] ?? null;
+      return csv(toCsv(["dados_de", "coletado_em", "ativos", "emitidos_no_ano", "ativos_pessoa_fisica", "ativos_pessoa_juridica", "ativos_equipamento", "ativos_a1", "ativos_a3"], series.map((r) => [r.as_of, r.fetched_at, r.active, r.issued_this_year, h(r, "Pessoa Fisica"), h(r, "Pessoa Juridica"), h(r, "Equipamentos/Aplicação"), t(r, "A1"), t(r, "A3")])), "iti-certificados-ativos.csv");
+    }
+    let m = /^\/api\/source\/([^/]+)\/monthly\.csv$/.exec(pathname);
+    if (m) {
+      if (!ID_RE.test(m[1]!)) return notFound();
+      const a = await readJson<SourceAgg>(env, `agg/${m[1]}.json`);
+      return a ? csv(toCsv(["fonte", "ac", "tipo", "mes", "revogacoes"], monthlyRows(a)), `revogacoes-mensais-${m[1]}.csv`) : notFound();
+    }
+    m = /^\/api\/source\/([^/]+)$/.exec(pathname);
     if (m) {
       if (!ID_RE.test(m[1]!)) return notFound();
       const obj = await env.LCR.get(`agg/${m[1]}.json`);
