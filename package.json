@@ -1,0 +1,31 @@
+{
+  "name": "kya-icp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Coleta hor\u00e1ria das listas de certificados revogados (LCR) da ICP-Brasil, guardadas brutas no Cloudflare R2, para medir a taxa e o atraso de revoga\u00e7\u00e3o.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@types/node": "^22.20.5",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "wrangler": "^4.157.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd"
+    ]
+  },
+  "packageManager": "pnpm@10.28.0"
+}

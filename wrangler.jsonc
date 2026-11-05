@@ -1,0 +1,12 @@
+// Deployed by .github/workflows/deploy.yml (wrangler deploy) with the CLOUDFLARE_API_TOKEN and
+// CLOUDFLARE_ACCOUNT_ID secrets of this repository. The R2 bucket is created by that workflow if missing.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "kya-icp-collector",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-11",
+  "observability": { "enabled": true },
+  // Hourly, off the top of the hour. The CRLs of end-user certificates are issued every 1 to 6 hours.
+  "triggers": { "crons": ["23 * * * *"] },
+  "r2_buckets": [{ "binding": "LCR", "bucket_name": "kya-icp-lcr" }]
+}

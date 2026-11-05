@@ -1,0 +1,37 @@
+# Deploys the collector to the Cloudflare account of this repository's secrets, on every push to main or by hand.
+# Required repository secrets: CLOUDFLARE_API_TOKEN (permissions: Workers Scripts Edit, Workers R2 Storage Edit),
+# CLOUDFLARE_ACCOUNT_ID. Creates the R2 bucket on the first run.
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: { group: deploy, cancel-in-progress: false }
+permissions:
+  contents: read
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BUCKET: kya-icp-lcr
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 22, cache: pnpm }
+      - run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::set the CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secrets"; exit 1
+          fi
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck && pnpm test
+      - name: Create the R2 bucket if missing
+        run: |
+          if pnpm exec wrangler r2 bucket list | grep -Eq "(^|[[:space:]])$BUCKET([[:space:]]|$)"; then
+            echo "bucket $BUCKET exists"
+          else
+            pnpm exec wrangler r2 bucket create "$BUCKET"
+          fi
+      - run: pnpm exec wrangler deploy
