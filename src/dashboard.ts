@@ -158,7 +158,7 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
 
   fetch("/api/iti").then((r) => r.json()).then((rows) => {
     const r = rows[rows.length - 1];
-    $("iti").innerHTML = r ? "Denominador (ITI): <b>" + fmt(r.active) + "</b> certificados ativos no país, " + fmt(r.issued_this_year) + " emitidos no ano · dados de " + when(r.as_of) + " UTC · " + rows.length + " versões guardadas · <a href=\"/api/iti.csv\">Baixar CSV</a>" : "Denominador (ITI): nenhuma versão guardada ainda.";
+    $("iti").innerHTML = r ? "Denominador (ITI): <b>" + fmt(r.active) + "</b> certificados ativos no país, " + fmt(r.issued_this_year) + " emitidos no ano · dados de " + when(r.as_of) + " UTC · " + rows.length + " versões guardadas · <a href='/api/iti.csv'>Baixar CSV</a>" : "Denominador (ITI): nenhuma versão guardada ainda.";
   }).catch(() => { $("iti").textContent = "Denominador (ITI): indisponível."; });
 
   Promise.all([fetch("/api/summary").then((r) => r.json()), fetch("/api/status").then((r) => r.json())]).then(([s, st]) => {
