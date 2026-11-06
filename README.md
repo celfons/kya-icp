@@ -64,6 +64,7 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/algorithms.csv` | algoritmo de assinatura de cada fonte ao longo do tempo, uma linha por trecho de mesmo OID, em CSV |
 | `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
 | `GET /api/pix`, `GET /api/pix.csv` | contexto de valor: pagamentos Pix a empresas (B2B e P2B) por mês, segundo o Banco Central, uma linha por mês guardado |
+| `POST /study/reports` | apoio à pesquisa, separado da coleta: recebe o relatório anônimo do estudo de caso H3 (`npx kya-study send`) e o guarda no R2; nada é servido de volta |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
 | `POST /api/run` | roda uma coleta agora (veja abaixo) |
@@ -104,6 +105,15 @@ A cada coleta o Worker baixa `https://numeros.iti.gov.br/assets/paneljson/panels
 ## Valores de transação (Pix, Banco Central)
 
 Uma vez por mês, o Worker baixa dos dados abertos do Banco Central (`Pix_DadosAbertos`, `EstatisticasTransacoesPix`) os totais do mês anterior dos pagamentos Pix de empresa para empresa (B2B) e de pessoa para empresa (P2B): valor, quantidade e valor médio. Enquanto o Banco Central não publica o mês, tenta no máximo uma vez por dia. Guarda as linhas brutas em `bcb/pix/<AAAAMM>.json` e acrescenta uma linha a `agg/pix.json`. O serviço não tem faixas de valor; a pesquisa usa o valor médio para dar escala à distribuição de valores da simulação de atualidade (kya-brasil, `research/freshness-sim`). Pagamentos Pix não são compras de agentes: são o dado público mais próximo do que uma empresa paga ou recebe por transação.
+
+
+## Apoio à pesquisa: caixa de entrada do estudo de caso (H3)
+
+Além da coleta, o Worker recebe os relatórios do estudo de caso com integradores independentes (kya-brasil, `packages/study-kit` e `research/study`). O participante roda `npx kya-study send`, que mostra o que vai enviar e pede confirmação; o relatório chega em `POST /study/reports` e é guardado em `study/reports/<id>/<recebido_em>.json`. Um novo envio acrescenta um arquivo, nunca sobrescreve.
+
+- **Sem página e sem leitura pública:** `/files` só serve LCR e logs; os relatórios são lidos pelo painel da Cloudflare ou com `wrangler r2 object get`.
+- **Validação:** só `application/json`, até 64 KB, formato `kya-study-report/1` com identificador `p-` mais 10 dígitos hexadecimais; no máximo 120 relatórios por hora.
+- **Privacidade:** o relatório não traz identificação da pessoa, e o Worker guarda só o relatório e a hora de chegada, sem IP, cabeçalhos nem linha de log. Os logs da própria plataforma (`observability` em `wrangler.jsonc`) podem registrar metadados da requisição; para o estudo, confira o que eles guardam e, se registrarem o IP, desative-os ou reduza a retenção.
 
 ## Implantação
 

@@ -17,6 +17,9 @@
  *   GET /api/pix, /api/pix.csv monthly Pix payments to companies (B2B, P2B), one row per stored month (pix.ts)
  *   GET /sources               the configured sources
  *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
+ *
+ * Research support, separate from the collection (no page, nothing served back):
+ *   POST /study/reports        the H3 case study inbox: an anonymous kya-study report, kept in R2 (study.ts)
  */
 import sourcesJson from "../sources.json";
 import { ID_RE, runCollection, validateSources } from "./collector.js";
@@ -26,6 +29,7 @@ import { toCsv } from "./csv.js";
 import { type ItiRow, snapshotIti } from "./iti.js";
 import { type PixRow, snapshotPix } from "./pix.js";
 import { gateRun } from "./run.js";
+import { receiveReport } from "./study.js";
 
 export interface Env {
   LCR: R2Bucket;
@@ -111,6 +115,10 @@ export default {
         return r;
       }
       return json(await collect(env), 200, 0);
+    }
+    if (pathname === "/study/reports") {
+      const r = await receiveReport(req, env.LCR, new Date());
+      return json(r.body, r.status, 0);
     }
     if (req.method !== "GET" && req.method !== "HEAD") return json({ error: "method not allowed" }, 405, 0);
     if (pathname === "/") {
