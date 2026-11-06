@@ -14,6 +14,7 @@
  *   GET /api/source/<id>/weekday-hour.csv, /api/weekday-hour.csv   revocations by weekday and hour (Brasília), CSV
  *   GET /api/algorithms.csv    signature algorithm of every source over time (one row per run of equal OIDs), CSV
  *   GET /api/iti, /api/iti.csv national certificate counts from ITI, one row per stored version (iti.ts)
+ *   GET /api/pix, /api/pix.csv monthly Pix payments to companies (B2B, P2B), one row per stored month (pix.ts)
  *   GET /sources               the configured sources
  *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
  */
@@ -23,6 +24,7 @@ import { DASHBOARD_HTML } from "./dashboard.js";
 import type { SourceAgg } from "./aggregate.js";
 import { toCsv } from "./csv.js";
 import { type ItiRow, snapshotIti } from "./iti.js";
+import { type PixRow, snapshotPix } from "./pix.js";
 import { gateRun } from "./run.js";
 
 export interface Env {
@@ -44,9 +46,10 @@ const OPTIONS = {
 async function collect(env: Env) {
   const { logKey, attempts } = await runCollection({ ...OPTIONS, sources, bucket: env.LCR, fetch: (input, init) => fetch(input, init), now: () => new Date() });
   const iti = await snapshotIti(env.LCR, (input, init) => fetch(input, init), new Date());
+  const pix = await snapshotPix(env.LCR, (input, init) => fetch(input, init), new Date());
   const outcomes: Record<string, number> = {};
   for (const a of attempts) outcomes[a.outcome] = (outcomes[a.outcome] ?? 0) + 1;
-  return { logKey, iti: iti.outcome === "error" ? { outcome: "error", error: iti.error } : { outcome: iti.outcome, as_of: iti.row.as_of, active: iti.row.active }, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
+  return { logKey, iti: iti.outcome === "error" ? { outcome: "error", error: iti.error } : { outcome: iti.outcome, as_of: iti.row.as_of, active: iti.row.active }, pix: pix.outcome === "stored" ? { outcome: "stored", month: pix.row.month } : pix, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
 }
 
 const COMMON = { "access-control-allow-origin": "*", "x-content-type-options": "nosniff" };
@@ -136,6 +139,12 @@ export default {
       const h = (r: ItiRow, k: string) => r.active_by_holder[k] ?? null;
       const t = (r: ItiRow, k: string) => r.active_by_type[k] ?? null;
       return csv(toCsv(["dados_de", "coletado_em", "ativos", "emitidos_no_ano", "ativos_pessoa_fisica", "ativos_pessoa_juridica", "ativos_equipamento", "ativos_a1", "ativos_a3"], series.map((r) => [r.as_of, r.fetched_at, r.active, r.issued_this_year, h(r, "Pessoa Fisica"), h(r, "Pessoa Juridica"), h(r, "Equipamentos/Aplicação"), t(r, "A1"), t(r, "A3")])), "iti-certificados-ativos.csv");
+    }
+    if (pathname === "/api/pix" || pathname === "/api/pix.csv") {
+      const series = (await readJson<PixRow[]>(env, "agg/pix.json")) ?? [];
+      if (pathname === "/api/pix") return json(series, 200, 300);
+      const n = (r: PixRow, k: string, f: "value_brl" | "count" | "mean_brl") => r.natures[k]?.[f] ?? null;
+      return csv(toCsv(["mes", "coletado_em", "b2b_valor", "b2b_quantidade", "b2b_media", "p2b_valor", "p2b_quantidade", "p2b_media"], series.map((r) => [r.month, r.fetched_at, n(r, "B2B", "value_brl"), n(r, "B2B", "count"), n(r, "B2B", "mean_brl"), n(r, "P2B", "value_brl"), n(r, "P2B", "count"), n(r, "P2B", "mean_brl")])), "pix-pagamentos-a-empresas.csv");
     }
     let m = /^\/api\/source\/([^/]+)\/weekday-hour\.csv$/.exec(pathname);
     if (m) {

@@ -63,6 +63,7 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/source/<fonte>/weekday-hour.csv`, `GET /api/weekday-hour.csv` | revogações por dia da semana e hora (horário de Brasília), em CSV |
 | `GET /api/algorithms.csv` | algoritmo de assinatura de cada fonte ao longo do tempo, uma linha por trecho de mesmo OID, em CSV |
 | `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
+| `GET /api/pix`, `GET /api/pix.csv` | contexto de valor: pagamentos Pix a empresas (B2B e P2B) por mês, segundo o Banco Central, uma linha por mês guardado |
 | `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
 | `GET /sources` | as fontes configuradas |
 | `POST /api/run` | roda uma coleta agora (veja abaixo) |
@@ -98,6 +99,11 @@ permitem reconstruir o período anterior offline. Se cada biblioteca X.509 conse
 ## Denominador (ITI)
 
 A cada coleta o Worker baixa `https://numeros.iti.gov.br/assets/paneljson/panels.json` e, quando o arquivo muda, guarda a versão bruta em `iti/panels/` e acrescenta uma linha a `agg/iti.json` (ativos, emitidos no ano, ativos por titular e por tipo, emissões mensais). O ITI não mantém histórico desse arquivo; a série começa na primeira coleta. Não há contagem por AC: a taxa por AC depende de pedido pela Lei de Acesso à Informação.
+
+
+## Valores de transação (Pix, Banco Central)
+
+Uma vez por mês, o Worker baixa dos dados abertos do Banco Central (`Pix_DadosAbertos`, `EstatisticasTransacoesPix`) os totais do mês anterior dos pagamentos Pix de empresa para empresa (B2B) e de pessoa para empresa (P2B): valor, quantidade e valor médio. Enquanto o Banco Central não publica o mês, tenta no máximo uma vez por dia. Guarda as linhas brutas em `bcb/pix/<AAAAMM>.json` e acrescenta uma linha a `agg/pix.json`. O serviço não tem faixas de valor; a pesquisa usa o valor médio para dar escala à distribuição de valores da simulação de atualidade (kya-brasil, `research/freshness-sim`). Pagamentos Pix não são compras de agentes: são o dado público mais próximo do que uma empresa paga ou recebe por transação.
 
 ## Implantação
 
