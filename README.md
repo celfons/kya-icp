@@ -1,8 +1,8 @@
 # kya-icp
 
-[![Código: DOI](https://zenodo.org/badge/1446483752.svg)](https://doi.org/10.5281/zenodo.23973109) [![Dados: DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23977027.svg)](https://doi.org/10.5281/zenodo.23977027)
+[![Código: DOI](https://zenodo.org/badge/1446483752.svg)](https://doi.org/10.5281/zenodo.23973109) [![Dados: DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24011370.svg)](https://doi.org/10.5281/zenodo.24011370)
 
-Código arquivado no Zenodo: https://doi.org/10.5281/zenodo.23973109 · Dados (CC BY 4.0): https://doi.org/10.5281/zenodo.23977027
+Código arquivado no Zenodo: https://doi.org/10.5281/zenodo.23973109 · Dados (CC BY 4.0): https://doi.org/10.5281/zenodo.24011370
 
 Coleta horária das **listas de certificados revogados (LCR)** da ICP-Brasil, guardadas brutas no Cloudflare R2,
 para medir **com que frequência** e **com que atraso** certificados ICP-Brasil são revogados.
