@@ -814,5 +814,29 @@
     "ac": "AC DIGITALSIGN (encerrada, LCR final de 2021)",
     "url": "http://www.digitalsigncertificadora.com.br/repositorio/ac/ACDIGITALSIGN.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-jus-g6",
+    "ac": "AC CERTISIGN-JUS G6",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisign-JUSG6/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-jus-g7",
+    "ac": "AC CERTISIGN-JUS G7",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisign-JUSG7/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-om-br",
+    "ac": "AC Certisign OM-BR",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignOM-BR/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-egba-multipla-g2",
+    "ac": "AC EGBA Multipla G2",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/AC_EGBA_MultiplaG2/LatestCRL.crl",
+    "kind": "usuario-final"
   }
 ]

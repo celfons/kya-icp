@@ -177,7 +177,8 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
   publicado nas páginas do ITI (o *Subject CN* é o nome que cada hospedeira usa no caminho da LCR), o que achou mais sete
   (Soluti Múltipla v5 G2, Online RFB v5, Fenacor RFB, A R A, FCDL SC v5 G2, Safetech CD, SIG Brasil). Onde nem isso bastou, a DPC
   da AC (PDF linkado no repositório dela) traz o endereço: foi assim com a DigitalSign (RFB G2/G3 e G2/G3, mais as gerações
-  encerradas). O emissor de cada LCR foi conferido
+  encerradas) e com o índice do repositório da Certisign, cujas páginas por AC linkam a LCR (Certisign-JUS G6/G7,
+  Certisign OM-BR, EGBA Múltipla G2). O emissor de cada LCR foi conferido
   contra a árvore do ITI. Ainda faltam, por não exporem índice
   nem padrão descoberto, e que devem ter repositório próprio: as RFB pequenas (A Digiforte, BR, CNDL, Consulti, DocCloud,
   Instituto Fenacon, Link, Notarial, Prodemge, Sempre, Imprensa Oficial SP), EGBA e Instituto Fenacon (Certisign), Link, Sempre,
