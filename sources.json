@@ -736,5 +736,47 @@
     "ac": "AC Validar Multipla",
     "url": "http://icp-brasil.syngularid.com.br/repositorio/ac-validar-multipla/lcr/lcr-ac-validar-multipla.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-multipla-v5-g2",
+    "ac": "AC SOLUTI Multipla v5 G2",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v5-g2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-online-rfb-v5",
+    "ac": "AC ONLINE RFB v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-onlinerfb/lcr-ac-onlinerfbv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-fenacor-rfb",
+    "ac": "AC FENACOR RFB",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACFENACORRFB/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-a-r-a-certificacao-digital-v5",
+    "ac": "AC A R A CERTIFICACAO DIGITAL v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-aracertificacaodigital-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-fcdl-sc-v5-g2",
+    "ac": "AC FCDL SC v5 G2",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-fcdl-sc-v5-g2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-safetech-cd",
+    "ac": "AC SAFETECH CD",
+    "url": "http://repositorio.acsafeweb.com.br/ac-safetechcd/lcr-ac-safetechcd.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sig-brasil",
+    "ac": "AC SIG BRASIL",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-sigbrasil/lcr-ac-sigbrasil.crl",
+    "kind": "usuario-final"
   }
 ]
