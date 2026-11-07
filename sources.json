@@ -346,5 +346,299 @@
     "ac": "Autoridade Certificadora Raiz Brasileira v4 (LCR de certificados de AC)",
     "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv4.crl",
     "kind": "ac"
+  },
+  {
+    "id": "uf-ac-alternative",
+    "ac": "Autoridade Certificadora ALTERNATIVE",
+    "url": "http://repositorio.serpro.gov.br/lcr/acalternative.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-brasil-certec",
+    "ac": "Autoridade Certificadora BRASIL CERTEC",
+    "url": "http://repositorio.serpro.gov.br/lcr/acbrasilcertec.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digital-certy",
+    "ac": "Autoridade Certificadora DIGITAL CERTY",
+    "url": "http://repositorio.serpro.gov.br/lcr/acdigitalcerty.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-idfederal",
+    "ac": "Autoridade Certificadora IDFEDERAL",
+    "url": "http://repositorio.serpro.gov.br/lcr/acidfederal.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-idfederal-v2",
+    "ac": "Autoridade Certificadora IDFEDERAL v2",
+    "url": "http://repositorio.serpro.gov.br/lcr/acidfederalv2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-infocomex",
+    "ac": "Autoridade Certificadora INFOCOMEX",
+    "url": "http://repositorio.serpro.gov.br/lcr/acinfocomex.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-infocomex-v2",
+    "ac": "Autoridade Certificadora INFOCOMEX v2",
+    "url": "http://repositorio.serpro.gov.br/lcr/acinfocomexv2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-invia",
+    "ac": "Autoridade Certificadora INVIA",
+    "url": "http://repositorio.serpro.gov.br/lcr/acinvia.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-nacional",
+    "ac": "Autoridade Certificadora NACIONAL",
+    "url": "http://repositorio.serpro.gov.br/lcr/acnacional.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-primecert",
+    "ac": "Autoridade Certificadora PRIMECERT",
+    "url": "http://repositorio.serpro.gov.br/lcr/acprimecert.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-primecert-v2",
+    "ac": "Autoridade Certificadora PRIMECERT v2",
+    "url": "http://repositorio.serpro.gov.br/lcr/acprimecertv2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-procerti",
+    "ac": "Autoridade Certificadora PROCERTI",
+    "url": "http://repositorio.serpro.gov.br/lcr/acprocerti.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-safe-id-brasil",
+    "ac": "Autoridade Certificadora SAFE-ID BRASIL",
+    "url": "http://repositorio.serpro.gov.br/lcr/acsafeidbrasil.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sdi",
+    "ac": "Autoridade Certificadora SDI",
+    "url": "http://repositorio.serpro.gov.br/lcr/acsdi.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sdi-v2",
+    "ac": "Autoridade Certificadora SDI v2",
+    "url": "http://repositorio.serpro.gov.br/lcr/acsdiv2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sefazce",
+    "ac": "Autoridade Certificadora SEFAZCE",
+    "url": "http://repositorio.serpro.gov.br/lcr/acsefazce.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sirius",
+    "ac": "Autoridade Certificadora SIRIUS",
+    "url": "http://repositorio.serpro.gov.br/lcr/acsirius.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-zapsign",
+    "ac": "Autoridade Certificadora ZAPSIGN",
+    "url": "http://repositorio.serpro.gov.br/lcr/aczapsign.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-fecomercio-mg-rfb",
+    "ac": "Autoridade Certificadora FECOMERCIO MG RFB",
+    "url": "http://repositorio.serpro.gov.br/lcr/fecomerciomgrfb.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-acf-v5",
+    "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserproacfv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-acf-v6",
+    "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserproacfv6.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-acf-v4",
+    "ac": "Autoridade Certificadora do SERPRO Final v4 (SERPRO ACF, encerrada, LCR final de 2024)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserproacfv4.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-jus-v5",
+    "ac": "AC SERPRO-JUS v5",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprojusv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-cacb-rfb-g2",
+    "ac": "AC CACB RFB G2",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCACBRFBG2/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-spb-g6",
+    "ac": "AC Certisign SPB G6",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignSPBG6/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-tempo-g2",
+    "ac": "AC Certisign Tempo G2 (carimbo do tempo)",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignTempoG2/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-tempo-g3",
+    "ac": "AC Certisign Tempo G3 (carimbo do tempo)",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignTempoG3/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-oab-g3",
+    "ac": "AC OAB G3",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACOABG3/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-oab-g4",
+    "ac": "AC OAB G4",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACOABG4/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sincor-g4",
+    "ac": "AC SINCOR G4",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACSINCORG4/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sincor-g5",
+    "ac": "AC SINCOR G5",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACSINCORG5/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sincor-rfb-g5",
+    "ac": "AC SINCOR RFB G5",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACSINCORRFBG5/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sincor-rio-rfb-g2",
+    "ac": "AC SINCOR RIO RFB G2",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACSINCORRIORFBG2/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-rfb-v5",
+    "ac": "AC SOLUTI RFB V5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-rfb-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-spb-v5",
+    "ac": "AC SOLUTI SPB v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-spb-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-jus-v5",
+    "ac": "AC SOLUTI-JUS v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-jus-v6",
+    "ac": "AC SOLUTI-JUS v6",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v6.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-jus-v1",
+    "ac": "AC SOLUTI-JUS v1 (encerrada, LCR final)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v1.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-acd-v5",
+    "ac": "AC ACD v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-acd-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certfacil-v5",
+    "ac": "AC CERTFACIL v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-certfacil-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digisec-v5",
+    "ac": "AC DIGISEC v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-digisec-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-fcdl-sc-v5",
+    "ac": "AC FCDL SC v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-fcdl-sc-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-infoco-digital-v5",
+    "ac": "AC INFOCO DIGITAL v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-infoco-digital-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-intercert-v5",
+    "ac": "AC INTERCERT v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-intercert-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-mult-v5",
+    "ac": "AC MULT v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-mult-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-prime-v5",
+    "ac": "AC PRIME v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-prime-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-qualitycert-v5",
+    "ac": "AC QUALITYCERT v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-qualitycert-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-redebrasil-v5",
+    "ac": "AC REDE BRASIL v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-redebrasil-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-segura-id-v5",
+    "ac": "AC SEGURA ID v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-segura-id-v5.crl",
+    "kind": "usuario-final"
   }
 ]

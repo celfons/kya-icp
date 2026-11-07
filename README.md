@@ -166,7 +166,15 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
 - **Meses antigos subestimados:** as ACs tiram da LCR os certificados que já expiraram, então a série reconstruída
   da primeira coleta é um piso para os meses antigos; os últimos 12 meses ficam quase completos.
 - **Fontes:** a lista começou com as LCR de certificados de AC (extraídas das âncoras ICP-Brasil) e algumas LCR de
-  usuário final conhecidas. Faltam as de muitas ACs de último nível; amplie `sources.json`. Espelhos de uma mesma LCR
+  usuário final conhecidas. Em 7 nov. 2026 ela foi ampliada para 61 fontes de usuário final, de 44 AC de 2º nível,
+  lendo os diretórios `lcr/` que o SERPRO expõe (23 AC hospedadas por ele, inclusive FECOMERCIO MG RFB e SERPRO ACF)
+  e sondando os padrões de endereço da Certisign (`.../lcr/<AC><Gn>/LatestCRL.crl`: OAB, SINCOR, SINCOR RFB,
+  SINCOR RIO RFB, CACB RFB, SPB, Tempo) e da Soluti (`.../lcr/ac-<nome>-v<n>.crl`: SOLUTI RFB v5, SPB, JUS e 12
+  AC de 2º nível). O emissor de cada LCR foi conferido contra a árvore do ITI. Ainda faltam, por não exporem índice
+  nem padrão descoberto: as 11 AC da Valid (`ccd.acvalid.com.br` não resolve), Safeweb, Digital Mais, Prodesp,
+  Serasa CD, Digitalsign, as AC de 2º nível da SyngularID, da Caixa e da JUS fora de SERPRO e Soluti, e as AC da
+  Certisign EGBA, Instituto Fenacon, Imprensa Oficial, Prodemge e Petrobras. Amplie `sources.json` quando achar o
+  endereço; o id de uma fonte de usuário final começa com `uf-`. Espelhos de uma mesma LCR
   são mantidos de propósito: medem a disponibilidade de cada endereço.
 - **Denominador:** a taxa por certificado ativo precisa do número de certificados ativos por AC, que o painel do ITI
   não publica; sem ele, a taxa fica no nível nacional (17,2 milhões ativos em nov. 2026).
