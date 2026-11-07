@@ -862,5 +862,19 @@
     "ac": "AC EGBA Multipla G2",
     "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/AC_EGBA_MultiplaG2/LatestCRL.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serasa-cd-v5",
+    "ac": "SERASA Certificadora Digital v5 (AC SERASA CD; URL inferida do padrão da RFB, a confirmar pelo coletor)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasacdv5.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasacdv5.crl"
+  },
+  {
+    "id": "uf-ac-serasa-jus-v5",
+    "ac": "AC SERASA-JUS v5 (descredenciada; URL inferida do padrão da RFB, a confirmar pelo coletor)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasajusv5.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasajusv5.crl"
   }
 ]
