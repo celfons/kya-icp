@@ -51,7 +51,7 @@ describe("aggregates", () => {
     const { bucket, json } = memoryBucket();
     let current = 0;
     let clock = Date.parse("2026-11-05T00:30:00Z");
-    const run = () => runCollection({ sources: [src], bucket, fetch: (async () => new Response(seq[current])) as typeof fetch, now: () => new Date(clock), timeoutMs: 1000, maxBytes: 1e6, concurrency: 1, userAgent: "t" });
+    const run = () => runCollection({ sources: [src], bucket, fetch: (async () => new Response(seq[current])) as typeof fetch, now: () => new Date(clock), timeoutMs: 1000, maxBytes: 1e6, concurrency: 1, hostGapMs: 0, userAgent: "t" });
 
     expect((await run()).attempts[0]).toMatchObject({ outcome: "stored", aggregated: true });
     let agg = json<SourceAgg>("agg/uf-teste.json");

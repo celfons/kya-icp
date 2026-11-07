@@ -2,7 +2,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import sources from "../sources.json";
-import { type Bucket, type RunOptions, type Source, runCollection, validateSources } from "../src/collector.js";
+import { type Bucket, type RunOptions, type Source, hostPacer, interleaveByHost, runCollection, validateSources } from "../src/collector.js";
 
 const small = new Uint8Array(readFileSync(new URL("./fixtures/ac-small.crl", import.meta.url)));
 const larger = new Uint8Array(readFileSync(new URL("./fixtures/ac-larger.crl", import.meta.url)));
@@ -42,7 +42,7 @@ function fakeFetch(table: Record<string, () => Response | Promise<Response>>) {
 }
 
 let clock = Date.parse("2026-11-05T04:23:00Z");
-const opts = (o: Partial<RunOptions> & Pick<RunOptions, "sources" | "bucket" | "fetch">): RunOptions => ({ now: () => new Date(clock), timeoutMs: 1000, maxBytes: 1_000_000, concurrency: 3, userAgent: "test", ...o });
+const opts = (o: Partial<RunOptions> & Pick<RunOptions, "sources" | "bucket" | "fetch">): RunOptions => ({ now: () => new Date(clock), timeoutMs: 1000, maxBytes: 1_000_000, concurrency: 3, hostGapMs: 0, userAgent: "test", ...o });
 const crl = (b: Uint8Array) => () => new Response(b, { status: 200 });
 
 describe("runCollection", () => {
@@ -105,6 +105,65 @@ describe("runCollection", () => {
   });
 });
 
+describe("host pacing", () => {
+  it("keeps requests to one host hostGapMs apart and lets other hosts go at once", async () => {
+    const waits: number[] = [];
+    const pace = hostPacer({ hostGapMs: 2000, now: () => new Date(clock), sleep: async (ms) => void waits.push(ms) });
+    expect(await pace("http://ccd.example/a.crl")).toBe(0);
+    expect(await pace("http://ccd.example/b.crl")).toBe(2000);
+    expect(await pace("http://other.example/c.crl")).toBe(0);
+    expect(await pace("http://ccd.example/d.crl")).toBe(4000);
+    expect(waits).toEqual([2000, 4000]);
+  });
+
+  it("interleaves the sources by host, biggest host first", () => {
+    const list = [src("a1", "http://a/1"), src("a2", "http://a/2"), src("a3", "http://a/3"), src("b1", "http://b/1"), src("c1", "http://c/1")];
+    expect(interleaveByHost(list).map((s) => s.id)).toEqual(["a1", "b1", "c1", "a2", "a3"]);
+  });
+
+  it("paces the real run: the 24 Soluti lists do not go out in one burst", async () => {
+    const { bucket } = memoryBucket();
+    const waits: number[] = [];
+    const { f } = fakeFetch({ "http://ccd.example/a.crl": crl(small), "http://ccd.example/b.crl": crl(small), "http://ccd.example/c.crl": crl(small) });
+    const sources = [src("a", "http://ccd.example/a.crl"), src("b", "http://ccd.example/b.crl"), src("c", "http://ccd.example/c.crl")];
+    const r = await runCollection(opts({ sources, bucket, fetch: f, hostGapMs: 1500, sleep: async (ms) => void waits.push(ms) }));
+    expect(r.attempts.every((a) => a.outcome === "stored")).toBe(true);
+    expect(waits.sort((x, y) => x - y)).toEqual([1500, 3000]);
+  });
+});
+
+describe("mirror", () => {
+  const withMirror = { ...src("m", "http://ccd.example/m.crl"), mirror: "http://ccd2.example/m.crl" };
+
+  it("falls back to the mirror when the primary host refuses, and records that", async () => {
+    const { bucket, objects } = memoryBucket();
+    const { f, calls } = fakeFetch({ "http://ccd.example/m.crl": () => new Response("no", { status: 403 }), "http://ccd2.example/m.crl": crl(small) });
+    const r = await runCollection(opts({ sources: [withMirror], bucket, fetch: f }));
+    expect(r.attempts[0]).toMatchObject({ outcome: "stored", url: "http://ccd2.example/m.crl", fallback: true, http_status: 200 });
+    expect(calls).toEqual(["http://ccd.example/m.crl", "http://ccd2.example/m.crl"]);
+    expect(objects.get(r.attempts[0]!.key!)!.meta).toMatchObject({ url: "http://ccd2.example/m.crl" });
+  });
+
+  it("falls back on a network failure too, and keeps the primary's answer when the mirror is also down", async () => {
+    const { bucket } = memoryBucket();
+    const { f } = fakeFetch({ "http://ccd2.example/m.crl": crl(small) });
+    const r = await runCollection(opts({ sources: [withMirror], bucket, fetch: f }));
+    expect(r.attempts[0]).toMatchObject({ outcome: "stored", fallback: true });
+
+    const bothDown = fakeFetch({ "http://ccd.example/m.crl": () => new Response("no", { status: 503 }) });
+    const r2 = await runCollection(opts({ sources: [withMirror], bucket, fetch: bothDown.f }));
+    expect(r2.attempts[0]).toMatchObject({ outcome: "http_error", http_status: 503, url: "http://ccd.example/m.crl", fallback: false });
+  });
+
+  it("does not use the mirror when the primary answered with a body", async () => {
+    const { bucket } = memoryBucket();
+    const { f, calls } = fakeFetch({ "http://ccd.example/m.crl": () => new Response(new Uint8Array([1, 2, 3])), "http://ccd2.example/m.crl": crl(small) });
+    const r = await runCollection(opts({ sources: [withMirror], bucket, fetch: f }));
+    expect(r.attempts[0]).toMatchObject({ outcome: "not_a_crl", fallback: false });
+    expect(calls).toEqual(["http://ccd.example/m.crl"]);
+  });
+});
+
 describe("sources", () => {
   it("sources.json is valid: unique ids, http(s) URLs, known kinds", () => {
     const s = validateSources(sources);
@@ -118,5 +177,9 @@ describe("sources", () => {
     expect(() => validateSources([{ ...src("a"), id: "A b" }])).toThrow(/id/);
     expect(() => validateSources([{ ...src("a"), url: "ftp://x/y.crl" }])).toThrow(/url/);
     expect(() => validateSources([{ ...src("a"), kind: "other" }])).toThrow(/kind/);
+    expect(() => validateSources([{ ...src("a"), mirror: "ftp://x/y.crl" }])).toThrow(/mirror/);
+    expect(() => validateSources([{ ...src("a"), mirror: src("a").url }])).toThrow(/mirror/);
+    expect(validateSources([{ ...src("a"), mirror: "http://m/a.crl" }])[0]).toMatchObject({ mirror: "http://m/a.crl" });
+    expect(validateSources([src("a")])[0]).not.toHaveProperty("mirror");
   });
 });

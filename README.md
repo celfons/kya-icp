@@ -36,6 +36,13 @@ o total de entradas e o OID do algoritmo de assinatura. O Worker **não decodifi
 milissegundos mesmo na maior lista (SERPRO, 2,3 MB e 77 mil entradas: 3,7 ms). Toda a análise é offline, a partir dos
 arquivos brutos, que são a evidência auditável.
 
+As requisições a um mesmo host saem com pelo menos 2 s de intervalo, e a fila intercala os hosts (`hostPacer` e
+`interleaveByHost` em `src/collector.ts`): em 7 de novembro de 2026 o host da Soluti passou a responder 403 às suas
+24 listas quando pedidas em rajada, e 200 a cada uma pedida sozinha. Uma fonte pode declarar `mirror`, a mesma LCR em
+outro host da AC; o Worker o tenta quando o host principal recusa ou não responde, e a linha do log e os metadados
+registram a URL que de fato serviu o arquivo (`fallback: true`). As fontes da Soluti apontam `ccd2.acsoluti.com.br`
+como espelho de `ccd.acsoluti.com.br`.
+
 A cada versão nova, o Worker também atualiza agregados pequenos (`src/aggregate.ts`), para o painel não processar
 LCR a cada visita:
 
