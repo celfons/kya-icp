@@ -175,7 +175,9 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
   RFB v5, a segunda maior lista de usuário final, e CD V12) e da Prodesp (RFB v1 e v1), e da SyngularID (`icp-brasil.syngularid.com.br/repositorio/ac-<nome>/lcr/lcr-ac-<nome>.crl`:
   SyngularID Múltipla e Validar Múltipla). As AC cujo endereço nenhum padrão achou foram procuradas pelo certificado de 2º nível
   publicado nas páginas do ITI (o *Subject CN* é o nome que cada hospedeira usa no caminho da LCR), o que achou mais sete
-  (Soluti Múltipla v5 G2, Online RFB v5, Fenacor RFB, A R A, FCDL SC v5 G2, Safetech CD, SIG Brasil). O emissor de cada LCR foi conferido
+  (Soluti Múltipla v5 G2, Online RFB v5, Fenacor RFB, A R A, FCDL SC v5 G2, Safetech CD, SIG Brasil). Onde nem isso bastou, a DPC
+  da AC (PDF linkado no repositório dela) traz o endereço: foi assim com a DigitalSign (RFB G2/G3 e G2/G3, mais as gerações
+  encerradas). O emissor de cada LCR foi conferido
   contra a árvore do ITI. Ainda faltam, por não exporem índice
   nem padrão descoberto, e que devem ter repositório próprio: as RFB pequenas (A Digiforte, BR, CNDL, Consulti, DocCloud,
   Instituto Fenacon, Link, Notarial, Prodemge, Sempre, Imprensa Oficial SP), EGBA e Instituto Fenacon (Certisign), Link, Sempre,
