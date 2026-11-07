@@ -700,5 +700,29 @@
     "ac": "AC VALID PLUS TIMESTAMPING (carimbo do tempo)",
     "url": "http://icp-brasil.validcertificadora.com.br/ac-validplustimestamping/lcr-ac-validplustimestampingv5.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-safeweb-rfb-v5",
+    "ac": "AC SAFEWEB RFB v5",
+    "url": "http://repositorio.acsafeweb.com.br/ac-safewebrfb/lcr-ac-safewebrfbv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-safeweb-cd-v12",
+    "ac": "AC SAFEWEB CD V12",
+    "url": "http://repositorio.acsafeweb.com.br/ac-safewebcd/lcr-ac-safewebcdv12.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-prodesp-rfb-v1",
+    "ac": "AC PRODESP RFB v1",
+    "url": "http://lcr1.prodesp.sp.gov.br/acprodesprfb/acprodesprfb.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-prodesp-v1",
+    "ac": "AC PRODESP v1",
+    "url": "http://lcr1.prodesp.sp.gov.br/acprodesp/acprodesp.crl",
+    "kind": "usuario-final"
   }
 ]
