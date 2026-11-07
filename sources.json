@@ -31,8 +31,8 @@
   },
   {
     "id": "uf-ac-valid-rfb-v5",
-    "ac": "AC VALID RFB v5",
-    "url": "http://ccd.acvalid.com.br/lcr/ac-valid-rfb-v5.crl",
+    "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validrfb/lcr-ac-validrfbv5.crl",
     "kind": "usuario-final"
   },
   {
@@ -639,6 +639,66 @@
     "id": "uf-ac-segura-id-v5",
     "ac": "AC SEGURA ID v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-segura-id-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-brasil-v5",
+    "ac": "AC VALID BRASIL v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validbrasil/lcr-ac-validbrasilv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-brasil-v12",
+    "ac": "AC VALID BRASIL V12",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validbrasil/lcr-ac-validbrasilv12.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-plus-v5",
+    "ac": "AC VALID PLUS v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validplus/lcr-ac-validplusv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-spb-v5",
+    "ac": "AC VALID SPB v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validspb/lcr-ac-validspbv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-jus-v5",
+    "ac": "AC VALID-JUS v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validjus/lcr-ac-validjusv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-jus-v6",
+    "ac": "AC VALID-JUS v6",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validjus/lcr-ac-validjusv6.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-online-brasil-v5",
+    "ac": "AC ONLINE BRASIL v5",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-onlinebrasil/lcr-ac-onlinebrasilv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certbank-v5",
+    "ac": "AC CERTBANK",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-certbank/lcr-ac-certbankv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-sic-brasil-v5",
+    "ac": "AC SIC BRASIL",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-sicbrasil/lcr-ac-sicbrasilv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-plus-timestamping-v5",
+    "ac": "AC VALID PLUS TIMESTAMPING (carimbo do tempo)",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-validplustimestamping/lcr-ac-validplustimestampingv5.crl",
     "kind": "usuario-final"
   }
 ]
