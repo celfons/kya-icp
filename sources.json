@@ -724,5 +724,17 @@
     "ac": "AC PRODESP v1",
     "url": "http://lcr1.prodesp.sp.gov.br/acprodesp/acprodesp.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-syngularid-multipla",
+    "ac": "AC SyngularID Multipla",
+    "url": "http://icp-brasil.syngularid.com.br/repositorio/ac-syngularid-multipla/lcr/lcr-ac-syngularid-multipla.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-validar-multipla",
+    "ac": "AC Validar Multipla",
+    "url": "http://icp-brasil.syngularid.com.br/repositorio/ac-validar-multipla/lcr/lcr-ac-validar-multipla.crl",
+    "kind": "usuario-final"
   }
 ]
