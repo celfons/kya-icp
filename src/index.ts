@@ -8,12 +8,14 @@
  *   GET /api/summary           agg/index.json: one summary per source
  *   GET /api/source/<id>       agg/<id>.json: monthly series and publication delays of one source
  *   GET /api/files/<id>        raw versions stored for one source (?cursor= to page)
- *   GET /files/<key>           a raw CRL (lcr/...) or a run log (log/...)
+ *   GET /files/<key>           a raw CRL (lcr/...), a run log (log/...) or a raw ITI file (iti/panels/..., iti/estrutura/...)
  *   GET /api/source/<id>/monthly.csv   monthly revocations of one source, CSV
  *   GET /api/monthly.csv       monthly revocations of every source, CSV
  *   GET /api/source/<id>/weekday-hour.csv, /api/weekday-hour.csv   revocations by weekday and hour (Brasília), CSV
  *   GET /api/algorithms.csv    signature algorithm of every source over time (one row per run of equal OIDs), CSV
  *   GET /api/iti, /api/iti.csv national certificate counts from ITI, one row per stored version (iti.ts)
+ *   GET /api/estrutura, /api/estrutura.csv   the ICP-Brasil tree from ITI: ACs per level and ARs, one row per stored version (estrutura.ts)
+ *   GET /api/estrutura/acs     the ACs of level 1 and 2 of the last stored tree, with status and parent (the coverage denominator)
  *   GET /api/pix, /api/pix.csv monthly Pix payments to companies (B2B, P2B), one row per stored month (pix.ts)
  *   GET /sources               the configured sources
  *   POST /api/run              run a collection now (needs the RUN_TOKEN secret as a bearer token; run.ts)
@@ -26,6 +28,7 @@ import { ID_RE, runCollection, validateSources } from "./collector.js";
 import { DASHBOARD_HTML } from "./dashboard.js";
 import type { SourceAgg } from "./aggregate.js";
 import { toCsv } from "./csv.js";
+import { type EstruturaRow, latestAcs, snapshotEstrutura } from "./estrutura.js";
 import { type ItiRow, snapshotIti } from "./iti.js";
 import { type PixRow, snapshotPix } from "./pix.js";
 import { gateRun } from "./run.js";
@@ -51,9 +54,10 @@ async function collect(env: Env) {
   const { logKey, attempts } = await runCollection({ ...OPTIONS, sources, bucket: env.LCR, fetch: (input, init) => fetch(input, init), now: () => new Date() });
   const iti = await snapshotIti(env.LCR, (input, init) => fetch(input, init), new Date());
   const pix = await snapshotPix(env.LCR, (input, init) => fetch(input, init), new Date());
+  const estrutura = await snapshotEstrutura(env.LCR, (input, init) => fetch(input, init), new Date());
   const outcomes: Record<string, number> = {};
   for (const a of attempts) outcomes[a.outcome] = (outcomes[a.outcome] ?? 0) + 1;
-  return { logKey, iti: iti.outcome === "error" ? { outcome: "error", error: iti.error } : { outcome: iti.outcome, as_of: iti.row.as_of, active: iti.row.active }, pix: pix.outcome === "stored" ? { outcome: "stored", month: pix.row.month } : pix, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
+  return { logKey, iti: iti.outcome === "error" ? { outcome: "error", error: iti.error } : { outcome: iti.outcome, as_of: iti.row.as_of, active: iti.row.active }, pix: pix.outcome === "stored" ? { outcome: "stored", month: pix.row.month } : pix, estrutura: "row" in estrutura ? { outcome: estrutura.outcome, updated_on: estrutura.row.updated_on, ac_level_2: estrutura.row.ac_level_2 } : estrutura, outcomes, aggregated: attempts.filter((a) => a.aggregated).length, aggregate_errors: attempts.filter((a) => a.aggregated === false && a.error).map((a) => ({ source: a.source, error: a.error })) };
 }
 
 const COMMON = { "access-control-allow-origin": "*", "x-content-type-options": "nosniff" };
@@ -148,6 +152,15 @@ export default {
       const t = (r: ItiRow, k: string) => r.active_by_type[k] ?? null;
       return csv(toCsv(["dados_de", "coletado_em", "ativos", "emitidos_no_ano", "ativos_pessoa_fisica", "ativos_pessoa_juridica", "ativos_equipamento", "ativos_a1", "ativos_a3"], series.map((r) => [r.as_of, r.fetched_at, r.active, r.issued_this_year, h(r, "Pessoa Fisica"), h(r, "Pessoa Juridica"), h(r, "Equipamentos/Aplicação"), t(r, "A1"), t(r, "A3")])), "iti-certificados-ativos.csv");
     }
+    if (pathname === "/api/estrutura" || pathname === "/api/estrutura.csv") {
+      const series = (await readJson<EstruturaRow[]>(env, "agg/estrutura.json")) ?? [];
+      if (pathname === "/api/estrutura") return json(series, 200, 300);
+      return csv(toCsv(["dados_de", "coletado_em", "ac_1_nivel", "ac_2_nivel", "ac_2_nivel_credenciadas", "ac_2_nivel_rfb", "ar", "arquivo"], series.map((r) => [r.updated_on, r.fetched_at, r.ac_level_1, r.ac_level_2, r.ac_level_2_accredited, r.ac_level_2_rfb, r.ar, r.key])), "iti-estrutura.csv");
+    }
+    if (pathname === "/api/estrutura/acs") {
+      const acs = await latestAcs(env.LCR);
+      return acs ? json(acs, 200, 3600) : notFound();
+    }
     if (pathname === "/api/pix" || pathname === "/api/pix.csv") {
       const series = (await readJson<PixRow[]>(env, "agg/pix.json")) ?? [];
       if (pathname === "/api/pix") return json(series, 200, 300);
@@ -179,8 +192,8 @@ export default {
       const list = await env.LCR.list({ prefix: `lcr/${m[1]}/`, cursor, limit: 500 });
       return json({ files: list.objects.map((o) => ({ key: o.key, size: o.size, uploaded: o.uploaded })), cursor: list.truncated ? list.cursor : null }, 200, 60);
     }
-    m = /^\/files\/((?:lcr\/[a-z0-9-]+\/[0-9TZ]+_[0-9a-f]{16}\.crl)|(?:log\/\d{4}\/\d{2}\/\d{2}\/\d{6}Z\.ndjson))$/.exec(pathname);
-    if (m) return serveObject(env, m[1]!, m[1]!.endsWith(".crl") ? "application/pkix-crl" : "application/x-ndjson");
+    m = /^\/files\/((?:lcr\/[a-z0-9-]+\/[0-9TZ]+_[0-9a-f]{16}\.crl)|(?:log\/\d{4}\/\d{2}\/\d{2}\/\d{6}Z\.ndjson)|(?:iti\/(?:panels|estrutura)\/[0-9TZ]+_[0-9a-f]{16}\.json))$/.exec(pathname);
+    if (m) return serveObject(env, m[1]!, m[1]!.endsWith(".crl") ? "application/pkix-crl" : m[1]!.endsWith(".json") ? "application/json" : "application/x-ndjson");
     return notFound();
   }
 } satisfies ExportedHandler<Env>;
