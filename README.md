@@ -173,9 +173,13 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
   AC de 2º nível) e da Valid (`icp-brasil.validcertificadora.com.br/ac-<nome>/lcr-ac-<nome>v<n>.crl`: RFB v5, cujo endereço
   publicado em `ccd.acvalid.com.br` não resolve, e mais dez listas de 2º nível), da Safeweb (`repositorio.acsafeweb.com.br/ac-<nome>/lcr-ac-<nome>v<n>.crl`:
   RFB v5, a segunda maior lista de usuário final, e CD V12) e da Prodesp (RFB v1 e v1), e da SyngularID (`icp-brasil.syngularid.com.br/repositorio/ac-<nome>/lcr/lcr-ac-<nome>.crl`:
-  SyngularID Múltipla e Validar Múltipla). O emissor de cada LCR foi conferido
+  SyngularID Múltipla e Validar Múltipla). As AC cujo endereço nenhum padrão achou foram procuradas pelo certificado de 2º nível
+  publicado nas páginas do ITI (o *Subject CN* é o nome que cada hospedeira usa no caminho da LCR), o que achou mais sete
+  (Soluti Múltipla v5 G2, Online RFB v5, Fenacor RFB, A R A, FCDL SC v5 G2, Safetech CD, SIG Brasil). O emissor de cada LCR foi conferido
   contra a árvore do ITI. Ainda faltam, por não exporem índice
-  nem padrão descoberto: as AC hospedadas pela Safeweb além da RFB e da CD (Safetech, Link, Sempre, Rede Ideia, Certipe), Digital Mais, Prodesp,
+  nem padrão descoberto, e que devem ter repositório próprio: as RFB pequenas (A Digiforte, BR, CNDL, Consulti, DocCloud,
+  Instituto Fenacon, Link, Notarial, Prodemge, Sempre, Imprensa Oficial SP), EGBA e Instituto Fenacon (Certisign), Link, Sempre,
+  Rede Ideia e Certipe (CD, Safeweb), Digital Mais, Prodesp,
   Serasa CD, Digitalsign, a SyngularID RFB e a Certifica Múltipla (em credenciamento), as AC da Caixa e da JUS fora de SERPRO e Soluti, e as AC da
   Certisign EGBA, Instituto Fenacon, Imprensa Oficial, Prodemge e Petrobras. Amplie `sources.json` quando achar o
   endereço; o id de uma fonte de usuário final começa com `uf-`. Espelhos de uma mesma LCR
