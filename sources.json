@@ -862,5 +862,45 @@
     "ac": "AC EGBA Multipla G2",
     "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/AC_EGBA_MultiplaG2/LatestCRL.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serasa-cd-v5",
+    "ac": "SERASA Certificadora Digital v5 (SERASA CD)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasacdv5.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasacdv5.crl"
+  },
+  {
+    "id": "uf-ac-serasa-jus-v5",
+    "ac": "AC SERASA-JUS v5 (descredenciada; LCR publicada no repositório da AC)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasajusv5.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasajusv5.crl"
+  },
+  {
+    "id": "uf-ac-serasa-cd-v2",
+    "ac": "SERASA CD V2 (cadeia anterior, publicada no repositório da AC; a confirmar pelo coletor)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasacdv2.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasacdv2.crl"
+  },
+  {
+    "id": "uf-ac-serasa-cd-v1",
+    "ac": "Serasa Certificadora Digital v1 (encerrada, certificados de 2008 em diante; a confirmar pelo coletor)",
+    "url": "http://publicacao.certificadodigital.com.br/repositorio/lcr/serasacdv1.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serasa-jus-v2",
+    "ac": "AC Serasa JUS V2 (cadeia anterior, descredenciada; a confirmar pelo coletor)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasajusv2.crl",
+    "kind": "usuario-final",
+    "mirror": "http://lcr.certificados.com.br/repositorio/lcr/serasajusv2.crl"
+  },
+  {
+    "id": "uf-ac-serasa-jus-v1",
+    "ac": "AC Serasa-JUS v1 (encerrada, certificados de 2009 em diante; a confirmar pelo coletor)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasajusv1.crl",
+    "kind": "usuario-final"
   }
 ]
