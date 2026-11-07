@@ -50,6 +50,7 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
 
   <div class="cards" id="cards"></div>
   <p class="muted" id="iti">Denominador (ITI): carregando…</p>
+  <p class="muted" id="estrutura">Estrutura (ITI): carregando…</p>
 
   <h2>Fontes</h2>
   <div class="toolbar">
@@ -160,6 +161,10 @@ export const DASHBOARD_HTML = /* html */ `<!doctype html>
     const r = rows[rows.length - 1];
     $("iti").innerHTML = r ? "Denominador (ITI): <b>" + fmt(r.active) + "</b> certificados ativos no país, " + fmt(r.issued_this_year) + " emitidos no ano · dados de " + when(r.as_of) + " UTC · " + rows.length + " versões guardadas · <a href='/api/iti.csv'>Baixar CSV</a>" : "Denominador (ITI): nenhuma versão guardada ainda.";
   }).catch(() => { $("iti").textContent = "Denominador (ITI): indisponível."; });
+  fetch("/api/estrutura").then((r) => r.json()).then((rows) => {
+    const r = rows[rows.length - 1];
+    $("estrutura").innerHTML = r ? "Estrutura (ITI): <b>" + r.ac_level_2 + "</b> AC de 2º nível (" + r.ac_level_2_accredited + " credenciadas, " + r.ac_level_2_rfb + " sob a AC RFB), " + r.ac_level_1 + " de 1º nível, " + fmt(r.ar) + " AR · árvore de " + when(r.updated_on) + " UTC · " + rows.length + " versões guardadas · <a href='/api/estrutura.csv'>Baixar CSV</a> · <a href='/api/estrutura/acs'>AC em JSON</a>" : "Estrutura (ITI): nenhuma versão guardada ainda.";
+  }).catch(() => { $("estrutura").textContent = "Estrutura (ITI): indisponível."; });
 
   Promise.all([fetch("/api/summary").then((r) => r.json()), fetch("/api/status").then((r) => r.json())]).then(([s, st]) => {
     summary = s.sources || [];

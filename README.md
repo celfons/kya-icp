@@ -64,8 +64,10 @@ Percorrer as 77 mil entradas do SERPRO custa cerca de 240 ms de CPU, acima do li
 | `GET /api/algorithms.csv` | algoritmo de assinatura de cada fonte ao longo do tempo, uma linha por trecho de mesmo OID, em CSV |
 | `GET /api/iti`, `GET /api/iti.csv` | denominador: certificados ativos no país segundo o ITI, uma linha por versão guardada |
 | `GET /api/pix`, `GET /api/pix.csv` | contexto de valor: pagamentos Pix a empresas (B2B e P2B) por mês, segundo o Banco Central, uma linha por mês guardado |
+| `GET /api/estrutura`, `GET /api/estrutura.csv` | cobertura: a árvore da ICP-Brasil segundo o ITI (AC de 1º e 2º nível, credenciadas e sob a AC RFB, AR), uma linha por versão guardada |
+| `GET /api/estrutura/acs` | as AC de 1º e 2º nível da última árvore guardada, com situação e AC superior, em JSON |
 | `POST /study/reports` | apoio à pesquisa, separado da coleta: recebe o relatório anônimo do estudo de caso H3 (`npx kya-study send`) e o guarda no R2; nada é servido de volta |
-| `GET /files/<chave>` | uma LCR bruta (`lcr/...`) ou um log (`log/...`) |
+| `GET /files/<chave>` | uma LCR bruta (`lcr/...`), um log (`log/...`) ou um arquivo bruto do ITI (`iti/panels/...`, `iti/estrutura/...`) |
 | `GET /sources` | as fontes configuradas |
 | `POST /api/run` | roda uma coleta agora (veja abaixo) |
 
@@ -101,6 +103,16 @@ permitem reconstruir o período anterior offline. Se cada biblioteca X.509 conse
 
 A cada coleta o Worker baixa `https://numeros.iti.gov.br/assets/paneljson/panels.json` e, quando o arquivo muda, guarda a versão bruta em `iti/panels/` e acrescenta uma linha a `agg/iti.json` (ativos, emitidos no ano, ativos por titular e por tipo, emissões mensais). O ITI não mantém histórico desse arquivo; a série começa na primeira coleta. Não há contagem por AC: a taxa por AC depende de pedido pela Lei de Acesso à Informação.
 
+
+## Estrutura da ICP-Brasil (ITI)
+
+Uma vez por dia, o Worker baixa `https://estrutura.iti.gov.br/assets/jsons/structure.json`, a árvore que o ITI
+publica (AC Raiz, AC de 1º e 2º nível e AR, com a situação de cada AC) e, quando o arquivo muda, guarda a versão
+bruta em `iti/estrutura/` e acrescenta uma linha a `agg/estrutura.json` (AC por nível, AC de 2º nível credenciadas
+e sob a AC RFB, número de AR). É o denominador da cobertura da coleta: quantas das AC que emitem para usuário
+final as fontes alcançam (em novembro de 2026, 6 das 106 de 2º nível). Mantida ao longo do tempo, registra
+credenciamentos e saídas, que o ITI não historia. `GET /api/estrutura/acs` serve a lista de AC da última versão,
+que `kya-paper/scripts/iti_estrutura.py` consome.
 
 ## Valores de transação (Pix, Banco Central)
 
