@@ -778,5 +778,41 @@
     "ac": "AC SIG BRASIL",
     "url": "http://icp-brasil.validcertificadora.com.br/ac-sigbrasil/lcr-ac-sigbrasil.crl",
     "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-rfb-g3",
+    "ac": "AC DIGITALSIGN RFB G3",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/rfb/ACDIGITALSIGNRFBG3.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-rfb-g2",
+    "ac": "AC DIGITALSIGN RFB G2",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/rfb/ACDIGITALSIGNRFBG2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-rfb-g1",
+    "ac": "AC DIGITALSIGN RFB (encerrada, LCR final de 2021)",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/rfb/ACDIGITALSIGNRFB.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-g3",
+    "ac": "AC DIGITALSIGN G3",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/ac/ACDIGITALSIGNG3.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-g2",
+    "ac": "AC DIGITALSIGN G2",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/ac/ACDIGITALSIGNG2.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-digitalsign-g1",
+    "ac": "AC DIGITALSIGN (encerrada, LCR final de 2021)",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/ac/ACDIGITALSIGN.crl",
+    "kind": "usuario-final"
   }
 ]
