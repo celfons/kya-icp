@@ -3,13 +3,15 @@
     "id": "uf-ac-soluti-multipla-v5",
     "ac": "AC SOLUTI Multipla v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-multipla-v5.crl"
   },
   {
     "id": "uf-ac-soluti-multipla-v1",
     "ac": "AC SOLUTI Multipla (v1, encerrada)",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v1.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-multipla-v1.crl"
   },
   {
     "id": "uf-ac-certisign-rfb-g5",
@@ -75,13 +77,15 @@
     "id": "ac-ccd-ac-soluti-v5-g2",
     "ac": "AC SOLUTI v5 G2 (LCR de certificados de AC)",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-v5-g2.crl",
-    "kind": "ac"
+    "kind": "ac",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-v5-g2.crl"
   },
   {
     "id": "ac-ccd-ac-soluti-v5",
     "ac": "AC SOLUTI v5 (LCR de certificados de AC)",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-v5.crl",
-    "kind": "ac"
+    "kind": "ac",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-v5.crl"
   },
   {
     "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -315,7 +319,8 @@
     "id": "uf-ac-soluti-rfb-v1",
     "ac": "AC SOLUTI RFB v1 (encerrada, LCR final de 2021)",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-rfb-v1.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-rfb-v1.crl"
   },
   {
     "id": "uf-ac-certisign-multipla-g7",
@@ -549,97 +554,113 @@
     "id": "uf-ac-soluti-rfb-v5",
     "ac": "AC SOLUTI RFB V5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-rfb-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-rfb-v5.crl"
   },
   {
     "id": "uf-ac-soluti-spb-v5",
     "ac": "AC SOLUTI SPB v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-spb-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-spb-v5.crl"
   },
   {
     "id": "uf-ac-soluti-jus-v5",
     "ac": "AC SOLUTI-JUS v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-jus-v5.crl"
   },
   {
     "id": "uf-ac-soluti-jus-v6",
     "ac": "AC SOLUTI-JUS v6",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v6.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-jus-v6.crl"
   },
   {
     "id": "uf-ac-soluti-jus-v1",
     "ac": "AC SOLUTI-JUS v1 (encerrada, LCR final)",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-jus-v1.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-jus-v1.crl"
   },
   {
     "id": "uf-ac-acd-v5",
     "ac": "AC ACD v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-acd-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-acd-v5.crl"
   },
   {
     "id": "uf-ac-certfacil-v5",
     "ac": "AC CERTFACIL v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-certfacil-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-certfacil-v5.crl"
   },
   {
     "id": "uf-ac-digisec-v5",
     "ac": "AC DIGISEC v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-digisec-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-digisec-v5.crl"
   },
   {
     "id": "uf-ac-fcdl-sc-v5",
     "ac": "AC FCDL SC v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-fcdl-sc-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-fcdl-sc-v5.crl"
   },
   {
     "id": "uf-ac-infoco-digital-v5",
     "ac": "AC INFOCO DIGITAL v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-infoco-digital-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-infoco-digital-v5.crl"
   },
   {
     "id": "uf-ac-intercert-v5",
     "ac": "AC INTERCERT v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-intercert-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-intercert-v5.crl"
   },
   {
     "id": "uf-ac-mult-v5",
     "ac": "AC MULT v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-mult-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-mult-v5.crl"
   },
   {
     "id": "uf-ac-prime-v5",
     "ac": "AC PRIME v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-prime-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-prime-v5.crl"
   },
   {
     "id": "uf-ac-qualitycert-v5",
     "ac": "AC QUALITYCERT v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-qualitycert-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-qualitycert-v5.crl"
   },
   {
     "id": "uf-ac-redebrasil-v5",
     "ac": "AC REDE BRASIL v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-redebrasil-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-redebrasil-v5.crl"
   },
   {
     "id": "uf-ac-segura-id-v5",
     "ac": "AC SEGURA ID v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-segura-id-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-segura-id-v5.crl"
   },
   {
     "id": "uf-ac-valid-brasil-v5",
@@ -741,7 +762,8 @@
     "id": "uf-ac-soluti-multipla-v5-g2",
     "ac": "AC SOLUTI Multipla v5 G2",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v5-g2.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-multipla-v5-g2.crl"
   },
   {
     "id": "uf-ac-online-rfb-v5",
@@ -759,13 +781,15 @@
     "id": "uf-ac-a-r-a-certificacao-digital-v5",
     "ac": "AC A R A CERTIFICACAO DIGITAL v5",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-aracertificacaodigital-v5.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-aracertificacaodigital-v5.crl"
   },
   {
     "id": "uf-ac-fcdl-sc-v5-g2",
     "ac": "AC FCDL SC v5 G2",
     "url": "http://ccd.acsoluti.com.br/lcr/ac-fcdl-sc-v5-g2.crl",
-    "kind": "usuario-final"
+    "kind": "usuario-final",
+    "mirror": "http://ccd2.acsoluti.com.br/lcr/ac-fcdl-sc-v5-g2.crl"
   },
   {
     "id": "uf-ac-safetech-cd",

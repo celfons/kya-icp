@@ -46,6 +46,7 @@ const OPTIONS = {
   timeoutMs: 60_000,
   maxBytes: 64 * 1024 * 1024,
   concurrency: 6,
+  hostGapMs: 2_000,
   userAgent: "kya-icp-collector/0.2 (+https://github.com/celfons/kya-icp)"
 };
 
