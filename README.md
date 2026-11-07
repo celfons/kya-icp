@@ -170,8 +170,10 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
   lendo os diretórios `lcr/` que o SERPRO expõe (23 AC hospedadas por ele, inclusive FECOMERCIO MG RFB e SERPRO ACF)
   e sondando os padrões de endereço da Certisign (`.../lcr/<AC><Gn>/LatestCRL.crl`: OAB, SINCOR, SINCOR RFB,
   SINCOR RIO RFB, CACB RFB, SPB, Tempo) e da Soluti (`.../lcr/ac-<nome>-v<n>.crl`: SOLUTI RFB v5, SPB, JUS e 12
-  AC de 2º nível). O emissor de cada LCR foi conferido contra a árvore do ITI. Ainda faltam, por não exporem índice
-  nem padrão descoberto: as 11 AC da Valid (`ccd.acvalid.com.br` não resolve), Safeweb, Digital Mais, Prodesp,
+  AC de 2º nível) e da Valid (`icp-brasil.validcertificadora.com.br/ac-<nome>/lcr-ac-<nome>v<n>.crl`: RFB v5, cujo endereço
+  publicado em `ccd.acvalid.com.br` não resolve, e mais dez listas de 2º nível). O emissor de cada LCR foi conferido
+  contra a árvore do ITI. Ainda faltam, por não exporem índice
+  nem padrão descoberto: Safeweb, Digital Mais, Prodesp,
   Serasa CD, Digitalsign, as AC de 2º nível da SyngularID, da Caixa e da JUS fora de SERPRO e Soluti, e as AC da
   Certisign EGBA, Instituto Fenacon, Imprensa Oficial, Prodemge e Petrobras. Amplie `sources.json` quando achar o
   endereço; o id de uma fonte de usuário final começa com `uf-`. Espelhos de uma mesma LCR
