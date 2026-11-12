@@ -195,7 +195,9 @@ revogação nova) e `summary.csv` (por fonte: snapshots, entradas, mediana, p95 
   endereço; o id de uma fonte de usuário final começa com `uf-`. Espelhos de uma mesma LCR
   são mantidos de propósito: medem a disponibilidade de cada endereço.
 - **OCSP (7 nov. 2026):** nenhum dos 115 certificados de AC de 2º nível publicados pelo ITI traz endereço OCSP na
-  extensão AIA. Dos seis hosts `ocsp.<AC>` conhecidos, três resolvem em DNS (Serpro, Certisign, Serasa). Sondados com
+  extensão AIA. Esse endereço serve ao status do próprio certificado, então o número fala da cadeia das AC, que só
+  se confere por LCR, e não dos certificados de usuário final, que não foram examinados. Para eles o perfil da norma
+  (DOC-ICP-04 v8.3, Anexo I) obriga o endereço da LCR e só permite o do OCSP. Dos seis hosts `ocsp.<AC>` conhecidos, três resolvem em DNS (Serpro, Certisign, Serasa). Sondados com
   requisição RFC 6960 para um serial revogado da LCR vigente de cada AC (POST e GET, CertID SHA-1 e SHA-256, com e sem
   nonce), a partir de uma rede de nuvem estrangeira: o Serpro responde em `/ocsp` com `application/ocsp-response`,
   mas sempre `malformedRequest`, sem status de certificado; Certisign e Serasa não completam a conexão nas portas 80 e
